@@ -25,6 +25,11 @@ class Score:
         self._verticals = None
         self._staves    = None
         self._staves_verticals = None
+        self._bars = None
+        # TODO: eventually structure as 3-dimensional array of images
+        # dimension 0: staves
+        # dimension 1: bars
+        # dimension 2: voices
 
     def _find_vertical_lines(self):
         '''
@@ -94,6 +99,10 @@ class Score:
         if plot_split_lines:
             plt.savefig('{}.png'.format(self._name))
 
+    def _find_bars(self):
+        # TODO: implement
+        pass
+
 
 def split_indices(array, comparator=(lambda x: x == 0)):
     '''Input: 1-D array of indicies of zeros of horizontal summation
@@ -121,7 +130,7 @@ def test_staves(output_dir='./test-verticals/'):
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for label, image_file in data.index_images():
+    for label, image_file in data.index_images(dataset='random_dataset'):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         s = Score(image, label)
         s._find_staves(plot_split_lines = True)
