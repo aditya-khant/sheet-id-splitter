@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import sys
 import cv2 as cv
 
+# requires score_retrieval
+import score_retrieval.data as data
+
 # TODO: add bar splitting, add ability to iterate through directory, unify docstring format.
 class Score:
     def __init__(self, score, name):
@@ -19,6 +22,9 @@ class Score:
         self._score     = score
         self._score_bw  = bw
         self._name      = name
+        self._verticals = None
+        self._staves    = None
+        self._staves_verticals = None
 
     def _find_vertical_lines(self):
         '''
@@ -26,7 +32,7 @@ class Score:
         '''
         self._verticals = np.copy(bw)
         # Specify size on vertical axis
-        rows, _ = self.verticals.shape
+        rows, _ = self._verticals.shape
         # TODO: why is 30 here?
         vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
@@ -70,7 +76,7 @@ class Score:
 
         # if told to, plot the source
         if plot_split_lines:
-            plt.figure()
+            plt.figure(figsize=(10,13))
             plt.imshow(self._score, aspect="auto", cmap = "gray")
 
         # split the score and verticals
@@ -82,7 +88,7 @@ class Score:
             # if told to, plot the split lines
             if plot_split_lines:
                 plt.axhline(y=start, color='r')
-                plt.axhline(y=end, color='b')
+                plt.axhline(y=end, color='r')
 
         # if told to, save the image
         if plot_split_lines:
@@ -110,251 +116,261 @@ def split_indices_average(array, comparator=(lambda x: x == 0)):
         b1 = line_pair[i+2][0]
         yield ( a + ((b-a)//2) , a1 + ((b1-a1)//2))
 
+def test_staves(output_dir='./test-verticals/'):
+    '''
+    Test the staff splitting by rendering where the score would be split for
+    each file.
+    '''
+    for label, image_file in data.index_images():
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        s = Score(image, label)
+        s._find_staves(plot_split_lines = True)
+
 # TODO: clean up below
 
-# In[2]:
+# # In[2]:
 
 
-img_path = "./04352.png" # Scanned
-# img_path = "./37048.png" # Perfect
+# img_path = "./04352.png" # Scanned
+# # img_path = "./37048.png" # Perfect
 
 
-# In[3]:
+# # In[3]:
 
 
-src = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
-print(src.shape)
-# Show source image
-plt.figure(figsize=(10,13))
-plt.imshow(src, aspect="auto", cmap = "gray")
+# src = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
+# print(src.shape)
+# # Show source image
+# plt.figure(figsize=(10,13))
+# plt.imshow(src, aspect="auto", cmap = "gray")
 
 
-# In[4]:
+# # In[4]:
 
 
-# Convert image to binary
-gray = cv.bitwise_not(src)
-bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,                             cv.THRESH_BINARY, 15, -2)
-plt.figure(figsize=(10,13))
-plt.imshow(bw, aspect="auto", cmap = "gray")
+# # Convert image to binary
+# gray = cv.bitwise_not(src)
+# bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,                             cv.THRESH_BINARY, 15, -2)
+# plt.figure(figsize=(10,13))
+# plt.imshow(bw, aspect="auto", cmap = "gray")
 
 
-# In[5]:
+# # In[5]:
 
 
-# ----VERTICAL LINE DETECTION----
-vertical = np.copy(bw)
-# Specify size on vertical axis
-rows = vertical.shape[0]
-verticalsize = rows // 30
-# Create structure element for extracting vertical lines through morphology operations
-verticalStructure = cv.getStructuringElement(cv.MORPH_RECT, (1, verticalsize))
-# Apply morphology operations
-vertical = cv.erode(vertical, verticalStructure)
-vertical = cv.dilate(vertical, verticalStructure)
-# Show extracted vertical lines
-plt.figure(figsize=(10,13))
-plt.imshow(vertical, aspect="auto")
+# # ----VERTICAL LINE DETECTION----
+# vertical = np.copy(bw)
+# # Specify size on vertical axis
+# rows = vertical.shape[0]
+# verticalsize = rows // 30
+# # Create structure element for extracting vertical lines through morphology operations
+# verticalStructure = cv.getStructuringElement(cv.MORPH_RECT, (1, verticalsize))
+# # Apply morphology operations
+# vertical = cv.erode(vertical, verticalStructure)
+# vertical = cv.dilate(vertical, verticalStructure)
+# # Show extracted vertical lines
+# plt.figure(figsize=(10,13))
+# plt.imshow(vertical, aspect="auto")
 
 
-# In[6]:
+# # In[6]:
 
 
-# ---- HORIZONTAL LINE DETECTION ----
-horizontal = np.copy(bw)
+# # ---- HORIZONTAL LINE DETECTION ----
+# horizontal = np.copy(bw)
 
-# [init]
-# [horiz]
-# Specify size on horizontal axis
-cols = horizontal.shape[1]
-horizontal_size = cols // 30
-# Create structure element for extracting horizontal lines through morphology operations
-horizontalStructure = cv.getStructuringElement(cv.MORPH_RECT, (horizontal_size, 1))
-# Apply morphology operations
-horizontal = cv.erode(horizontal, horizontalStructure)
-horizontal = cv.dilate(horizontal, horizontalStructure)
-plt.figure(figsize=(10,13))
-plt.imshow(horizontal, aspect="auto")
+# # [init]
+# # [horiz]
+# # Specify size on horizontal axis
+# cols = horizontal.shape[1]
+# horizontal_size = cols // 30
+# # Create structure element for extracting horizontal lines through morphology operations
+# horizontalStructure = cv.getStructuringElement(cv.MORPH_RECT, (horizontal_size, 1))
+# # Apply morphology operations
+# horizontal = cv.erode(horizontal, horizontalStructure)
+# horizontal = cv.dilate(horizontal, horizontalStructure)
+# plt.figure(figsize=(10,13))
+# plt.imshow(horizontal, aspect="auto")
 
 
-# In[7]:
+# # In[7]:
 
 
-cv.imwrite("vert.png", vertical)
-cv.imwrite("horiz.png", horizontal)
+# cv.imwrite("vert.png", vertical)
+# cv.imwrite("horiz.png", horizontal)
 
 
-# # Line Splitting
+# # # Line Splitting
 
-# In[8]:
+# # In[8]:
 
 
-vert_norm = vertical // vertical.max()
-horiz_sum_vert = vert_norm.sum(axis=1)
-plt.scatter(np.arange(horiz_sum_vert.size), horiz_sum_vert)
+# vert_norm = vertical // vertical.max()
+# horiz_sum_vert = vert_norm.sum(axis=1)
+# plt.scatter(np.arange(horiz_sum_vert.size), horiz_sum_vert)
 
 
-# In[9]:
+# # In[9]:
 
 
-def get_split_indices(array, comparator=(lambda x: x == 0)):
-    '''Input: 1-D array of indicies of zeros of horizontal summation
-    Output: Generator of indicies to split images by discontinuities in zeros'''
-    indices = np.where(comparator(array))[0]
-    # we dont want to add 1 to last element
-    for i in range(indices.size - 1):
-        if indices[i+1] - indices[i] != 1:
-            yield (indices[i], indices[i+1])
+# def get_split_indices(array, comparator=(lambda x: x == 0)):
+#     '''Input: 1-D array of indicies of zeros of horizontal summation
+#     Output: Generator of indicies to split images by discontinuities in zeros'''
+#     indices = np.where(comparator(array))[0]
+#     # we dont want to add 1 to last element
+#     for i in range(indices.size - 1):
+#         if indices[i+1] - indices[i] != 1:
+#             yield (indices[i], indices[i+1])
 
 
-# In[10]:
+# # In[10]:
 
 
-line_pairs = list(get_split_indices(horiz_sum_vert))
-line_pairs
+# line_pairs = list(get_split_indices(horiz_sum_vert))
+# line_pairs
 
 
-# In[11]:
+# # In[11]:
 
 
-def get_split_indices_average(array):
-    '''Input: 1-D array of indicies of zeros of horizontal summation
-    Output: Iterator of indicies to split image at by average of zeros'''
-    line_pair = list(get_split_indices(array))
-    line_pair = [(0, 0)] + line_pair + [(array.size, array.size)]
-    for i in range(len(line_pair) - 2):
-        a = line_pair[i][1]
-        b = line_pair[i+1][0]
-        a1 = line_pair[i+1][1]
-        b1 = line_pair[i+2][0]
-        yield ( a + ((b-a)//2) , a1 + ((b1-a1)//2))
+# def get_split_indices_average(array):
+#     '''Input: 1-D array of indicies of zeros of horizontal summation
+#     Output: Iterator of indicies to split image at by average of zeros'''
+#     line_pair = list(get_split_indices(array))
+#     line_pair = [(0, 0)] + line_pair + [(array.size, array.size)]
+#     for i in range(len(line_pair) - 2):
+#         a = line_pair[i][1]
+#         b = line_pair[i+1][0]
+#         a1 = line_pair[i+1][1]
+#         b1 = line_pair[i+2][0]
+#         yield ( a + ((b-a)//2) , a1 + ((b1-a1)//2))
 
 
-# In[12]:
+# # In[12]:
 
 
-line_cuts = list(get_split_indices_average(horiz_sum_vert))
-line_cuts
+# line_cuts = list(get_split_indices_average(horiz_sum_vert))
+# line_cuts
 
 
-# In[13]:
+# # In[13]:
 
 
-plt.figure(figsize=(10,13))
-plt.imshow(src, aspect="auto", cmap = "gray")
-for start, end in line_pairs:
-    plt.axhline(y=start, color = 'r')
-    plt.axhline(y = end, color = 'b')
-for cut in line_cuts:
-    plt.axhline(y=cut[0], color = 'g')
-# Note: This does not show the last green cut.
+# plt.figure(figsize=(10,13))
+# plt.imshow(src, aspect="auto", cmap = "gray")
+# for start, end in line_pairs:
+#     plt.axhline(y=start, color = 'r')
+#     plt.axhline(y = end, color = 'b')
+# for cut in line_cuts:
+#     plt.axhline(y=cut[0], color = 'g')
+# # Note: This does not show the last green cut.
 
 
-# In[14]:
+# # In[14]:
 
 
-def cut_array(array, positions, direction="H"):
-    '''Input: array: image array, positions: array of start end tuples
-       Output: array of image arrays cut by positions'''
-    for start , end in positions:
-        if (direction == "H"):
-            yield array[start:end, :]
-        else: 
-            yield array[:, start:end]
+# def cut_array(array, positions, direction="H"):
+#     '''Input: array: image array, positions: array of start end tuples
+#        Output: array of image arrays cut by positions'''
+#     for start , end in positions:
+#         if (direction == "H"):
+#             yield array[start:end, :]
+#         else: 
+#             yield array[:, start:end]
 
 
-# In[15]:
+# # In[15]:
 
 
-array_of_cuts = list(cut_array(src, line_cuts))
-for i, cut in enumerate(cut_array(src, line_cuts)):
-    plt.figure(figsize = (10,2))
-    plt.imshow(cut, cmap="gray")
-    cv.imwrite("./cuts/"+img_path +"_cut_"+str(i)+".png", cut)
+# array_of_cuts = list(cut_array(src, line_cuts))
+# for i, cut in enumerate(cut_array(src, line_cuts)):
+#     plt.figure(figsize = (10,2))
+#     plt.imshow(cut, cmap="gray")
+#     cv.imwrite("./cuts/"+img_path +"_cut_"+str(i)+".png", cut)
 
 
-# # Vertical Split
+# # # Vertical Split
 
-# In[16]:
+# # In[16]:
 
 
-plt.figure(figsize = (20,4))
-one_cut = array_of_cuts[0]
-plt.imshow(one_cut, cmap="gray")
+# plt.figure(figsize = (20,4))
+# one_cut = array_of_cuts[0]
+# plt.imshow(one_cut, cmap="gray")
 
 
-# In[17]:
+# # In[17]:
 
 
-array_of_vert = list(cut_array(vert_norm, line_cuts))
-one_vert = array_of_vert[0]
-vertical_sum_vert = one_vert.sum(axis=0)
-plt.scatter(np.arange(vertical_sum_vert.size), vertical_sum_vert)
+# array_of_vert = list(cut_array(vert_norm, line_cuts))
+# one_vert = array_of_vert[0]
+# vertical_sum_vert = one_vert.sum(axis=0)
+# plt.scatter(np.arange(vertical_sum_vert.size), vertical_sum_vert)
 
 
-# In[18]:
+# # In[18]:
 
 
-bar_lines = list(get_split_indices(vertical_sum_vert, lambda x: x > 0))
-bar_lines
+# bar_lines = list(get_split_indices(vertical_sum_vert, lambda x: x > 0))
+# bar_lines
 
 
-# In[19]:
+# # In[19]:
 
 
-plt.figure(figsize = (20,4))
-plt.imshow(array_of_cuts[0], cmap="gray")
-for start, end in bar_lines:
-    plt.axvline(x = start, color = 'r')
-    plt.axvline(x = end, color = 'b')
+# plt.figure(figsize = (20,4))
+# plt.imshow(array_of_cuts[0], cmap="gray")
+# for start, end in bar_lines:
+#     plt.axvline(x = start, color = 'r')
+#     plt.axvline(x = end, color = 'b')
 
 
-# In[20]:
+# # In[20]:
 
 
-array_of_bars = list(cut_array(one_cut, bar_lines, "V") )
-for i, cut in enumerate(array_of_bars):
-    plt.figure(figsize = (4,2))
-    plt.imshow(cut, cmap="gray")
-    cv.imwrite("./cuts/"+img_path +"_bar_cut_"+str(i)+".png", cut)
+# array_of_bars = list(cut_array(one_cut, bar_lines, "V") )
+# for i, cut in enumerate(array_of_bars):
+#     plt.figure(figsize = (4,2))
+#     plt.imshow(cut, cmap="gray")
+#     cv.imwrite("./cuts/"+img_path +"_bar_cut_"+str(i)+".png", cut)
 
 
-# In[21]:
+# # In[21]:
 
 
-for bar in array_of_bars:
-    bar_sum = bar.sum(axis=0)
-    plt.figure()
-    plt.scatter(np.arange(bar_sum.size), bar_sum)
+# for bar in array_of_bars:
+#     bar_sum = bar.sum(axis=0)
+#     plt.figure()
+#     plt.scatter(np.arange(bar_sum.size), bar_sum)
 
 
-# In[22]:
+# # In[22]:
 
 
-# MIGHT BE IMPORTANT?
-# Extract edges and smooth image according to the logic
-# 1. extract edges
-# 2. dilate(edges)
-# 3. src.copyTo(smooth)
-# 4. blur smooth img
-# 5. smooth.copyTo(src, edges)
-# '''
-# # Step 1
-# edges = cv.adaptiveThreshold(vertical, 255, cv.ADAPTIVE_THRESH_MEAN_C, \
-#                             cv.THRESH_BINARY, 3, -2)
-# show_wait_destroy("edges", edges)
-# # Step 2
-# kernel = np.ones((2, 2), np.uint8)
-# edges = cv.dilate(edges, kernel)
-# show_wait_destroy("dilate", edges)
-# # Step 3
-# smooth = np.copy(vertical)
-# # Step 4
-# smooth = cv.blur(smooth, (2, 2))
-# # Step 5
-# (rows, cols) = np.where(edges != 0)
-# vertical[rows, cols] = smooth[rows, cols]
-# # Show final result
-# show_wait_destroy("smooth - final", vertical)
-# # [smooth]
+# # MIGHT BE IMPORTANT?
+# # Extract edges and smooth image according to the logic
+# # 1. extract edges
+# # 2. dilate(edges)
+# # 3. src.copyTo(smooth)
+# # 4. blur smooth img
+# # 5. smooth.copyTo(src, edges)
+# # '''
+# # # Step 1
+# # edges = cv.adaptiveThreshold(vertical, 255, cv.ADAPTIVE_THRESH_MEAN_C, \
+# #                             cv.THRESH_BINARY, 3, -2)
+# # show_wait_destroy("edges", edges)
+# # # Step 2
+# # kernel = np.ones((2, 2), np.uint8)
+# # edges = cv.dilate(edges, kernel)
+# # show_wait_destroy("dilate", edges)
+# # # Step 3
+# # smooth = np.copy(vertical)
+# # # Step 4
+# # smooth = cv.blur(smooth, (2, 2))
+# # # Step 5
+# # (rows, cols) = np.where(edges != 0)
+# # vertical[rows, cols] = smooth[rows, cols]
+# # # Show final result
+# # show_wait_destroy("smooth - final", vertical)
+# # # [smooth]
 
