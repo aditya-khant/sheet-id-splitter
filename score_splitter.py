@@ -35,7 +35,7 @@ class Score:
         '''
         generates an image of the same shape as 'self._score_bw' where only the vertical lines remain.
         '''
-        self._verticals = np.copy(bw)
+        self._verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
         rows, _ = self._verticals.shape
         # TODO: why is 30 here?
@@ -98,6 +98,7 @@ class Score:
         # if told to, save the image
         if plot_split_lines:
             plt.savefig('{}.png'.format(self._name))
+            plt.clf()
 
     def _find_bars(self):
         # TODO: implement
@@ -116,7 +117,7 @@ def split_indices(array, comparator=(lambda x: x == 0)):
 def split_indices_average(array, comparator=(lambda x: x == 0)):
     '''Input: 1-D array of indicies of zeros of horizontal summation
     Output: Iterator of indicies to split image at by average of zeros'''
-    line_pair = list(get_split_indices(array, comparator))
+    line_pair = list(split_indices(array, comparator))
     line_pair = [(0, 0)] + line_pair + [(array.size-1, array.size-1)]
     for i in range(len(line_pair) - 2):
         a = line_pair[i][1]
@@ -125,15 +126,21 @@ def split_indices_average(array, comparator=(lambda x: x == 0)):
         b1 = line_pair[i+2][0]
         yield ( a + ((b-a)//2) , a1 + ((b1-a1)//2))
 
-def test_staves(output_dir='./test-verticals/'):
+def test_staves(dataset='mini_dataset', output_dir='./test-staves/'):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for label, image_file in data.index_images(dataset='random_dataset'):
+    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
-        s = Score(image, label)
+        name = label.split('/')[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, output_dir + name + str(i))
         s._find_staves(plot_split_lines = True)
+
+if __name__ == '__main__':
+    test_staves()
 
 # TODO: clean up below
 

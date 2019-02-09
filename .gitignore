@@ -115,3 +115,5 @@ dmypy.json
 
 # Images
 cuts/*
+test_staves/*
+test_staves_random_last_page/*
