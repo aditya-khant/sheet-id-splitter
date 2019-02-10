@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import cv2 as cv
+import os.path as path
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -46,7 +47,7 @@ class Score:
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
 
-    def _find_staves(self, split_type = 'average', plot_split_lines = False):
+    def _find_staves(self, split_type = 'average', plot_split_lines = False, imwrite=False):
         '''
         params:
           split_type -- 'average' or 'strict'. 'average' takes the average
@@ -61,6 +62,7 @@ class Score:
                         you'd get the original image, whereas 'split' does not.
           plot_split_lines -- plot and save an image depicting where to split
                               to get the staves
+          imwrite -- use openCv to draw lines and save
         returns:
           an array of the separated staves of the score
         '''
@@ -83,6 +85,9 @@ class Score:
         if plot_split_lines:
             plt.figure(figsize=(10,13))
             plt.imshow(self._score, aspect="auto", cmap = "gray")
+        
+        if imwrite:
+            img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
 
         # split the score and verticals
         self._staves = []
@@ -94,15 +99,30 @@ class Score:
             if plot_split_lines:
                 plt.axhline(y=start, color='r')
                 plt.axhline(y=end, color='r')
+            if imwrite:
+                cv.line(img_color, (0, start), (self._score.shape[1], start), (255,0,0), 5 )
+                cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
 
         # if told to, save the image
         if plot_split_lines:
             plt.savefig('{}.png'.format(self._name))
             plt.clf()
+        
+        if imwrite:
+            print('{}.png'.format(self._name))
+            cv.imwrite('{}.png'.format(self._name), img_color)
 
     def _find_bars(self):
-        # TODO: implement
-        pass
+        if self._staves is None:
+            self._find_staves()
+        for i in range(len(self._staves_verticals)):  
+            staff = self._staves[i]
+            staff_vert = self._staves_verticals[i]          
+            verts_norm = staff_vert // staff_vert.max()
+            vert_sum_verts = verts_norm.sum(axis=0)
+            bar_split_indices = split_indices(vert_sum_verts)
+            for start, end in bar_split_indices:
+                self._bars.append(staff[start:end])
 
 
 def split_indices(array, comparator=(lambda x: x == 0)):
@@ -126,18 +146,18 @@ def split_indices_average(array, comparator=(lambda x: x == 0)):
         b1 = line_pair[i+2][0]
         yield ( a + ((b-a)//2) , a1 + ((b1-a1)//2))
 
-def test_staves(dataset='mini_dataset', output_dir='./test-staves/'):
+def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
     for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
-        name = label.split('/')[-1]
+        name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
-        s._find_staves(plot_split_lines = True)
+        s._find_staves(imwrite= True)
 
 if __name__ == '__main__':
     test_staves()
