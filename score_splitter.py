@@ -113,9 +113,10 @@ class Score:
             print('{}.png'.format(self._name))
             cv.imwrite('{}.png'.format(self._name), img_color)
 
-    def _find_bars(self):
+    def _find_bars(self, imwrite):
         if self._staves is None:
             self._find_staves()
+        self._bars = []
         for i in range(len(self._staves_verticals)):
             staff = self._staves[i]
             staff_vert = self._staves_verticals[i]
@@ -128,6 +129,7 @@ class Score:
     def _create_bar_waveforms(self):
         if self._bars is None:
             self._find_bars()
+        self._bar_waveform = []
         for bar in self._bars:
             self._bar_waveform.append(bar.sum(axis=0))
 
@@ -171,13 +173,33 @@ def create_waveforms(image, name=""):
     Input: Image
     Output: Array of bar vertical sum vectors
     '''
-    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     s = Score(image, name)
     s._create_bar_waveforms()
     return s._bar_waveform
 
+def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
+    '''
+    Test the staff splitting by rendering where the score would be split for
+    each file.
+    '''
+    ret_sum = 0
+    ret_counter = 0
+    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        name = path.split(label)[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, output_dir + name + str(i))
+        s._create_bar_waveforms()
+        LC = [ len(x)  for x in s._bar_waveform] 
+        ret_sum += sum(LC)
+        ret_counter += len(LC)
+    
+    print(ret_sum/ret_counter)
+
 if __name__ == '__main__':
-    test_staves()
+    # test_staves()
+    test_bar_waveforms()
 
 
 # TODO: clean up below
