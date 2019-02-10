@@ -113,7 +113,7 @@ class Score:
             print('{}.png'.format(self._name))
             cv.imwrite('{}.png'.format(self._name), img_color)
 
-    def _find_bars(self, imwrite):
+    def _find_bars(self, imwrite = False):
         if self._staves is None:
             self._find_staves()
         self._bars = []
