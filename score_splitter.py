@@ -18,6 +18,7 @@ class Score:
           name  - identifier for the score
         '''
         # binary conversion
+        print(score.shape)
         gray = cv.bitwise_not(score)
         bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2)
         self._score     = score
@@ -191,10 +192,10 @@ def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._create_bar_waveforms()
-        LC = [ len(x)  for x in s._bar_waveform] 
+        LC = [ len(x)  for x in s._bar_waveform]
         ret_sum += sum(LC)
         ret_counter += len(LC)
-    
+
     print(ret_sum/ret_counter)
 
 if __name__ == '__main__':
