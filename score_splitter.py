@@ -27,6 +27,7 @@ class Score:
         self._staves    = None
         self._staves_verticals = None
         self._bars = None
+        self._bar_waveform = None
         # TODO: eventually structure as 3-dimensional array of images
         # dimension 0: staves
         # dimension 1: bars
@@ -124,6 +125,12 @@ class Score:
             for start, end in bar_split_indices:
                 self._bars.append(staff[start:end])
 
+    def _create_bar_waveforms(self):
+        if self._bars is None:
+            self._find_bars()
+        for bar in self._bars:
+            self._bar_waveform.append(bar.sum(axis=0))
+
 
 def split_indices(array, comparator=(lambda x: x == 0)):
     '''Input: 1-D array of indicies of zeros of horizontal summation
@@ -158,6 +165,16 @@ def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._find_staves(imwrite= True)
+
+def create_waveforms(image, name=""):
+    '''
+    Input: Image
+    Output: Array of bar vertical sum vectors
+    '''
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    s = Score(image, name)
+    return s._bar_waveform
+    
 
 if __name__ == '__main__':
     test_staves()
