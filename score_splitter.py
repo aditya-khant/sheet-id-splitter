@@ -173,11 +173,12 @@ def create_waveforms(image, name=""):
     '''
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     s = Score(image, name)
+    s._create_bar_waveforms()
     return s._bar_waveform
-    
 
 if __name__ == '__main__':
     test_staves()
+
 
 # TODO: clean up below
 
