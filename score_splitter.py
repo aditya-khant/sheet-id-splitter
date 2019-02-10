@@ -86,7 +86,7 @@ class Score:
         if plot_split_lines:
             plt.figure(figsize=(10,13))
             plt.imshow(self._score, aspect="auto", cmap = "gray")
-        
+
         if imwrite:
             img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
 
@@ -108,7 +108,7 @@ class Score:
         if plot_split_lines:
             plt.savefig('{}.png'.format(self._name))
             plt.clf()
-        
+
         if imwrite:
             print('{}.png'.format(self._name))
             cv.imwrite('{}.png'.format(self._name), img_color)
@@ -116,9 +116,9 @@ class Score:
     def _find_bars(self):
         if self._staves is None:
             self._find_staves()
-        for i in range(len(self._staves_verticals)):  
+        for i in range(len(self._staves_verticals)):
             staff = self._staves[i]
-            staff_vert = self._staves_verticals[i]          
+            staff_vert = self._staves_verticals[i]
             verts_norm = staff_vert // staff_vert.max()
             vert_sum_verts = verts_norm.sum(axis=0)
             bar_split_indices = split_indices(vert_sum_verts)
@@ -329,7 +329,7 @@ if __name__ == '__main__':
 #     for start , end in positions:
 #         if (direction == "H"):
 #             yield array[start:end, :]
-#         else: 
+#         else:
 #             yield array[:, start:end]
 
 
