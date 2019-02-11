@@ -147,7 +147,17 @@ class Score:
             self._find_bars()
         self._bar_waveform = []
         for bar in self._bars:
-            self._bar_waveform.append(bar.sum(axis=1))
+            self._bar_waveform.append(bar.sum(axis=0))
+
+    def _create_staff_waveforms(self):
+        '''
+        Returns list of vertical sum waveforms
+        '''
+        if self._staves is None:
+            self._find_staves()
+        self._staff_waveform = []
+        for staff in self._staves:
+            self._staff_waveform.append(staff.sum(axis=0))
     
     def _generate_pretty_image(self):
         '''
@@ -206,8 +216,10 @@ def create_waveforms(image, name=""):
     Output: Array of bar vertical sum vectors
     '''
     s = Score(image, name)
-    s._create_bar_waveforms()
-    return s._bar_waveform
+    s._create_staff_waveforms()
+    return s._staff_waveform
+    # s._create_bar_waveforms()
+    # return s._bar_waveform
 
 def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
