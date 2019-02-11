@@ -164,7 +164,7 @@ class Score:
     def _create_cnn_staff_waveforms(self):
         if self._staves is None:
             self._find_staves()
-        return call_benchmark(images=[staff[:,:,np.newaxis] for staff in s._staves])
+        return call_benchmark(images=[cv.cvtColor(staff,cv.COLOR_GRAY2RGB) for staff in self._staves])
     
     def _generate_pretty_image(self):
         '''
