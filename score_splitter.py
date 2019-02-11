@@ -114,10 +114,13 @@ class Score:
             print('{}.png'.format(self._name))
             cv.imwrite('{}.png'.format(self._name), img_color)
 
-    def _find_bars(self, imwrite = False):
+    def _find_bars(self):
+        '''
+        Finds the bars in the image
+        '''
         if self._staves is None:
             self._find_staves()
-        self._bars = []
+        self._bars = [] 
         for i in range(len(self._staves_verticals)):
             staff = self._staves[i]
             staff_vert = self._staves_verticals[i]
@@ -128,11 +131,22 @@ class Score:
                 self._bars.append(staff[start:end])
 
     def _create_bar_waveforms(self):
+        '''
+        Returns list of vertical sum waveforms
+        '''
         if self._bars is None:
             self._find_bars()
         self._bar_waveform = []
         for bar in self._bars:
             self._bar_waveform.append(bar.sum(axis=0))
+    
+    def _generate_pretty_image(self):
+        '''
+        Generates bars and staves on an image
+        '''
+        #TODO: Implement!
+        pass
+
 
 
 def split_indices(array, comparator=(lambda x: x == 0)):
@@ -185,6 +199,7 @@ def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
     ret_sum = 0
     ret_counter = 0
+    temp_toggle = False
     for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
@@ -192,6 +207,11 @@ def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._create_bar_waveforms()
+        if not temp_toggle:
+            print(s._bar_waveform[0])
+            plt.scatter(np.arange(s._bar_waveform[0].size), s._bar_waveform[0])
+            plt.show()
+            temp_toggle = True
         LC = [ len(x)  for x in s._bar_waveform]
         ret_sum += sum(LC)
         ret_counter += len(LC)
