@@ -147,7 +147,7 @@ class Score:
             self._find_bars()
         self._bar_waveform = []
         for bar in self._bars:
-            self._bar_waveform.append(bar.sum(axis=0))
+            self._bar_waveform.append(bar.sum(axis=1))
     
     def _generate_pretty_image(self):
         '''
