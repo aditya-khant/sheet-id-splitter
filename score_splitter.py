@@ -131,7 +131,8 @@ class Score:
             staff_vert = self._staves_verticals[i]
             verts_norm = staff_vert // staff_vert.max()
             vert_sum_verts = verts_norm.sum(axis=0)
-            bar_split_indices = list(split_indices(vert_sum_verts))
+            threshold = sorted(vert_sum_verts)[-(vert_sum_verts.size // 10)]
+            bar_split_indices = list(split_indices(vert_sum_verts, lambda x: x >= threshold))
             self._bars_start_end.append(bar_split_indices)
             for start, end in bar_split_indices:
                 self._bars.append(staff[start:end])
