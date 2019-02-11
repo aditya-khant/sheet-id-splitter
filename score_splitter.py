@@ -43,9 +43,9 @@ class Score:
         self._verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
         rows, _ = self._verticals.shape
-        # TODO: why is 15 here?
+        # TODO: why is 30 here?
         # TODO: figure out how to find the optimal value
-        vertical_size = rows // 15
+        vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         # Apply morphology operations
@@ -131,8 +131,10 @@ class Score:
             staff_vert = self._staves_verticals[i]
             verts_norm = staff_vert // staff_vert.max()
             vert_sum_verts = verts_norm.sum(axis=0)
-            threshold = sorted(vert_sum_verts)[-(vert_sum_verts.size // 10)]
-            bar_split_indices = list(split_indices(vert_sum_verts, lambda x: x >= threshold))
+            # non_zeros = vert_sum_verts[np.where(vert_sum_verts > 0)]
+            # top 10 values and looking for x less than
+            # threshold = sorted(non_zeros)[-10:][0]
+            bar_split_indices = list(split_indices(vert_sum_verts, lambda x: x > 0))
             self._bars_start_end.append(bar_split_indices)
             for start, end in bar_split_indices:
                 self._bars.append(staff[start:end])
@@ -158,7 +160,8 @@ class Score:
             cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
             cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
             for (bar_start, bar_end) in bar_lines:
-                cv.line(img_color, (bar_start, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+                cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
+                cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
         cv.imwrite('{}.png'.format(self._name), img_color)
                 
 
