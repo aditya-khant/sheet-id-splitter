@@ -27,7 +27,9 @@ class Score:
         self._verticals = None
         self._staves    = None
         self._staves_verticals = None
+        self._staves_start_end = []
         self._bars = None
+        self._bars_start_end = []
         self._bar_waveform = None
         # TODO: eventually structure as 3-dimensional array of images
         # dimension 0: staves
@@ -41,8 +43,9 @@ class Score:
         self._verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
         rows, _ = self._verticals.shape
-        # TODO: why is 30 here?
-        vertical_size = rows // 30
+        # TODO: why is 15 here?
+        # TODO: figure out how to find the optimal value
+        vertical_size = rows // 15
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         # Apply morphology operations
@@ -77,9 +80,9 @@ class Score:
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
-            staff_split_indices = split_indices_average(horiz_sum_verts)
+            staff_split_indices = list(split_indices_average(horiz_sum_verts))
         elif split_type == 'strict':
-            staff_split_indices = split_indices(horiz_sum_verts)
+            staff_split_indices = list(split_indices(horiz_sum_verts))
         else:
             raise Exception('Invalid split_type given')
 
@@ -94,6 +97,7 @@ class Score:
         # split the score and verticals
         self._staves = []
         self._staves_verticals = []
+        self._staves_start_end = staff_split_indices
         for (start, end) in staff_split_indices:
             self._staves.append(self._score[start:end])
             self._staves_verticals.append(self._verticals[start:end])
@@ -121,12 +125,14 @@ class Score:
         if self._staves is None:
             self._find_staves()
         self._bars = [] 
+        self._bars_start_end = []
         for i in range(len(self._staves_verticals)):
             staff = self._staves[i]
             staff_vert = self._staves_verticals[i]
             verts_norm = staff_vert // staff_vert.max()
             vert_sum_verts = verts_norm.sum(axis=0)
-            bar_split_indices = split_indices(vert_sum_verts)
+            bar_split_indices = list(split_indices(vert_sum_verts))
+            self._bars_start_end.append(bar_split_indices)
             for start, end in bar_split_indices:
                 self._bars.append(staff[start:end])
 
@@ -144,9 +150,16 @@ class Score:
         '''
         Generates bars and staves on an image
         '''
-        #TODO: Implement!
-        pass
-
+        if self._bars is None:
+            self._find_bars()
+        img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
+        for (staff_start, staff_end), bar_lines in zip(self._staves_start_end, self._bars_start_end):
+            cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
+            cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
+            for (bar_start, bar_end) in bar_lines:
+                cv.line(img_color, (bar_start, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+        cv.imwrite('{}.png'.format(self._name), img_color)
+                
 
 
 def split_indices(array, comparator=(lambda x: x == 0)):
@@ -218,9 +231,23 @@ def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
 
     print(ret_sum/ret_counter)
 
+def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/pretty_output/'):
+    '''
+    Test the staff splitting by rendering where the score would be split for
+    each file.
+    '''
+    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        name = path.split(label)[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, output_dir + name + str(i))
+        s._generate_pretty_image()
+
 if __name__ == '__main__':
     # test_staves()
-    test_bar_waveforms()
+    # test_bar_waveforms()
+    test_pretty_print()
 
 
 # TODO: clean up below
