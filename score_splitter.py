@@ -126,7 +126,7 @@ class Score:
         '''
         if self._staves is None:
             self._find_staves()
-        self._bars = [] 
+        self._bars = []
         self._bars_start_end = []
         for i in range(len(self._staves_verticals)):
             staff = self._staves[i]
@@ -180,7 +180,7 @@ class Score:
                 cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
                 cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
         cv.imwrite('{}.png'.format(self._name), img_color)
-                
+
 
 
 def split_indices(array, comparator=(lambda x: x == 0)):
@@ -224,8 +224,7 @@ def create_waveforms(image, name=""):
     Output: Array of cnn staff waveforms
     '''
     s = Score(image, name)
-    s._create_cnn_staff_waveforms()
-    return s._cnn_staff_waveform
+    return s._create_cnn_staff_waveforms()
     # s._create_bar_waveforms()
     # return s._bar_waveform
 
