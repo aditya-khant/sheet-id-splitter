@@ -8,6 +8,8 @@ import os.path as path
 
 # requires score_retrieval
 import score_retrieval.data as data
+# requires cnnpytorch
+from benchmarks import call_benchmark
 
 # TODO: add bar splitting, add ability to iterate through directory, unify docstring format.
 class Score:
@@ -199,15 +201,16 @@ def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._find_staves(imwrite= True)
+        create_waveforms(image)
 
 def create_waveforms(image, name=""):
     '''
     Input: Image
-    Output: Array of bar vertical sum vectors
+    Output: Array of cnn staff waveforms
     '''
     s = Score(image, name)
-    s._create_bar_waveforms()
-    return s._bar_waveform
+    s._find_staves()
+    return call_benchmark(images=[staff[:,:,np.newaxis] for staff in s._staves])
 
 def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
@@ -249,9 +252,9 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/prett
         s._generate_pretty_image()
 
 if __name__ == '__main__':
-    # test_staves()
+    test_staves()
     # test_bar_waveforms()
-    test_pretty_print()
+    # test_pretty_print()
 
 
 # TODO: clean up below
