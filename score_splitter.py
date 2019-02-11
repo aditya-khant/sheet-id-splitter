@@ -150,6 +150,21 @@ class Score:
         self._bar_waveform = []
         for bar in self._bars:
             self._bar_waveform.append(bar.sum(axis=0))
+
+    def _create_staff_waveforms(self):
+        '''
+        Returns list of vertical sum waveforms
+        '''
+        if self._staves is None:
+            self._find_staves()
+        self._staff_waveform = []
+        for staff in self._staves:
+            self._staff_waveform.append(staff.sum(axis=0))
+
+    def _create_cnn_staff_waveforms(self):
+        if self._staves is None:
+            self._find_staves()
+        return call_benchmark(images=[staff[:,:,np.newaxis] for staff in s._staves])
     
     def _generate_pretty_image(self):
         '''
@@ -209,8 +224,10 @@ def create_waveforms(image, name=""):
     Output: Array of cnn staff waveforms
     '''
     s = Score(image, name)
-    s._find_staves()
-    return call_benchmark(images=[staff[:,:,np.newaxis] for staff in s._staves])
+    s._create_cnn_staff_waveforms()
+    return s._cnn_staff_waveform
+    # s._create_bar_waveforms()
+    # return s._bar_waveform
 
 def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
