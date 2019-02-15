@@ -218,12 +218,15 @@ def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
         s._find_staves(imwrite= True)
         create_waveforms(image)
 
-def create_waveforms(image, name=""):
+def create_waveforms(image, name="", down_sample_rate=0.5):
     '''
     Input: Image
     Output: Array of cnn staff waveforms
     '''
-    s = Score(image, name)
+    down_sampled = None
+    rows, cols = image.shape
+    new_shape = (int(rows * down_sample_rate), int(cols * down_sample_rate))
+    s = Score(cv.resize(image, new_shape), name)
     return s._create_cnn_staff_waveforms()
     # s._create_bar_waveforms()
     # return s._bar_waveform
