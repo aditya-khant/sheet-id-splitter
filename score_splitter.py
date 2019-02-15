@@ -165,7 +165,7 @@ class Score:
         if self._staves is None:
             self._find_staves()
         return call_benchmark(images=[cv.cvtColor(staff,cv.COLOR_GRAY2RGB) for staff in self._staves])
-    
+
     def _generate_pretty_image(self):
         '''
         Generates bars and staves on an image
