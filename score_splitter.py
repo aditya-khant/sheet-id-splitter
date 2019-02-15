@@ -164,10 +164,10 @@ class Score:
     def _create_cnn_staff_waveforms(self):
         if self._staves is None:
             self._find_staves()
-        # convert to RGB and then downsample
-        new_images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), 0.30)
-                      for staff in self._staves]
-        return call_benchmark(images=new_images)
+        # downsample then convert to RGB
+        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), 0.3)
+                  for staff in self._staves]
+        return call_benchmark(images=images)
 
     def _generate_pretty_image(self):
         '''
@@ -190,7 +190,7 @@ def downsample_image(image, rate=0.5):
     '''
     Downsamples 'image' by 'rate.'
     '''
-    new_shape = tuple(int(dim * down_sample_rate) for dim in image.shape)
+    new_shape = (int(image.shape[0] * rate), int(image.shape[1] * rate))
     return cv.resize(image, new_shape)
 
 def split_indices(array, comparator=(lambda x: x == 0)):
