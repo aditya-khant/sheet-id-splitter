@@ -43,9 +43,9 @@ class Score:
         self._verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
         rows, _ = self._verticals.shape
-        # TODO: why is 15 here?
+        # TODO: Smaller the magic number bigger the filtered out lines are
         # TODO: figure out how to find the optimal value
-        vertical_size = rows // 15
+        vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         # Apply morphology operations
@@ -131,7 +131,7 @@ class Score:
             staff_vert = self._staves_verticals[i]
             verts_norm = staff_vert // staff_vert.max()
             vert_sum_verts = verts_norm.sum(axis=0)
-            threshold = sorted(vert_sum_verts)[-(vert_sum_verts.size // 10)]
+            threshold = np.sort(vert_sum_verts)[-1*(vert_sum_verts.size // 10)]
             bar_split_indices = list(split_indices(vert_sum_verts, lambda x: x >= threshold))
             self._bars_start_end.append(bar_split_indices)
             for start, end in bar_split_indices:
