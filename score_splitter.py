@@ -164,7 +164,10 @@ class Score:
     def _create_cnn_staff_waveforms(self):
         if self._staves is None:
             self._find_staves()
-        return call_benchmark(images=[cv.cvtColor(staff,cv.COLOR_GRAY2RGB) for staff in self._staves])
+        # convert to RGB and then downsample
+        new_images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), 0.30)
+                      for staff in self._staves]
+        return call_benchmark(images=new_images)
 
     def _generate_pretty_image(self):
         '''
@@ -182,6 +185,13 @@ class Score:
         cv.imwrite('{}.png'.format(self._name), img_color)
 
 
+
+def downsample_image(image, rate=0.5):
+    '''
+    Downsamples 'image' by 'rate.'
+    '''
+    new_shape = tuple(int(dim * down_sample_rate) for dim in image.shape)
+    return cv.resize(image, new_shape)
 
 def split_indices(array, comparator=(lambda x: x == 0)):
     '''Input: 1-D array of indicies of zeros of horizontal summation
@@ -223,10 +233,7 @@ def create_waveforms(image, name="", down_sample_rate=0.5):
     Input: Image
     Output: Array of cnn staff waveforms
     '''
-    down_sampled = None
-    rows, cols = image.shape
-    new_shape = (int(rows * down_sample_rate), int(cols * down_sample_rate))
-    s = Score(cv.resize(image, new_shape), name)
+    s = Score(image, name)
     return s._create_cnn_staff_waveforms()
     # s._create_bar_waveforms()
     # return s._bar_waveform
