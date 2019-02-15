@@ -8,6 +8,8 @@ import os.path as path
 
 # requires score_retrieval
 import score_retrieval.data as data
+# requires cnnpytorch
+from benchmarks import call_benchmark
 
 # TODO: add bar splitting, add ability to iterate through directory, unify docstring format.
 class Score:
@@ -124,7 +126,7 @@ class Score:
         '''
         if self._staves is None:
             self._find_staves()
-        self._bars = [] 
+        self._bars = []
         self._bars_start_end = []
         for i in range(len(self._staves_verticals)):
             staff = self._staves[i]
@@ -146,7 +148,25 @@ class Score:
         self._bar_waveform = []
         for bar in self._bars:
             self._bar_waveform.append(bar.sum(axis=0))
-    
+
+    def _create_staff_waveforms(self):
+        '''
+        Returns list of vertical sum waveforms
+        '''
+        if self._staves is None:
+            self._find_staves()
+        self._staff_waveform = []
+        for staff in self._staves:
+            self._staff_waveform.append(staff.sum(axis=0))
+
+    def _create_cnn_staff_waveforms(self):
+        if self._staves is None:
+            self._find_staves()
+        # downsample then convert to RGB
+        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), 0.3)
+                  for staff in self._staves]
+        return call_benchmark(images=images)
+
     def _generate_pretty_image(self):
         '''
         Generates bars and staves on an image
@@ -158,10 +178,18 @@ class Score:
             cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
             cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
             for (bar_start, bar_end) in bar_lines:
-                cv.line(img_color, (bar_start, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+                cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
+                cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
         cv.imwrite('{}.png'.format(self._name), img_color)
-                
 
+
+
+def downsample_image(image, rate=0.5):
+    '''
+    Downsamples 'image' by 'rate.'
+    '''
+    new_shape = (int(image.shape[0] * rate), int(image.shape[1] * rate))
+    return cv.resize(image, new_shape)
 
 def split_indices(array, comparator=(lambda x: x == 0)):
     '''Input: 1-D array of indicies of zeros of horizontal summation
@@ -196,15 +224,17 @@ def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._find_staves(imwrite= True)
+        create_waveforms(image)
 
-def create_waveforms(image, name=""):
+def create_waveforms(image, name="", down_sample_rate=0.5):
     '''
     Input: Image
-    Output: Array of bar vertical sum vectors
+    Output: Array of cnn staff waveforms
     '''
     s = Score(image, name)
-    s._create_bar_waveforms()
-    return s._bar_waveform
+    return s._create_cnn_staff_waveforms()
+    # s._create_bar_waveforms()
+    # return s._bar_waveform
 
 def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
@@ -246,9 +276,9 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/prett
         s._generate_pretty_image()
 
 if __name__ == '__main__':
-    # test_staves()
+    test_staves()
     # test_bar_waveforms()
-    test_pretty_print()
+    # test_pretty_print()
 
 
 # TODO: clean up below
