@@ -182,6 +182,46 @@ class Score:
                 cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
         cv.imwrite('{}.png'.format(self._name), img_color)
 
+def fitStaffLines(scores, height):
+    N = len(scores)
+    idx_RH, idx_LH, best_score = 0, 0, -1
+    idxs_sorted = np.argsort(scores)[::-1]
+    min_separation = int(height * 1.66)
+    idx1 = idxs_sorted[0]
+    for j in range(1, N):
+        idx2 = idxs_sorted[j]
+        curScore = scores[idx1] + scores[idx2]
+        sep = np.abs(idx1 - idx2)
+        if sep > min_separation and curScore > best_score:
+            best_score = curScore
+            idx_RH = min(idx1, idx2)
+            idx_LH = max(idx1, idx2)
+            break
+    return best_score, idx_RH, idx_LH
+
+def locateStaffLines(s, min_height = 60, max_height = 120, plot = True):
+    rsums = np.sum(s, axis=1)
+    bestScore = 0
+    lineLocs = np.zeros(10)
+    for h in range(min_height,max_height+1):
+        idxs = h * np.arange(5) / 4.0
+        idxs = idxs.round().astype('int')
+        filt = np.zeros(h+1)
+        filt[idxs] = 1 # create comb filter
+        scores = np.convolve(rsums, filt, 'valid')
+        curScore, idx_RH, idx_LH = fitStaffLines(scores, h)
+        if curScore > bestScore:
+            bestScore = curScore
+            lineLocs[0:5] = idxs + idx_RH
+            lineLocs[5:] = idxs + idx_LH
+    
+    if plot:
+        plt.plot(rsums)
+        for i in range(len(lineLocs)):
+            plt.axvline(x=lineLocs[i], color='r', linewidth=1)
+        plt.show()
+        
+    return lineLocs
 
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
