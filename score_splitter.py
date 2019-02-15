@@ -182,6 +182,7 @@ class Score:
                 cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
         cv.imwrite('{}.png'.format(self._name), img_color)
 
+# TODO: Integrate the code into existing code
 def fitStaffLines(scores, height):
     N = len(scores)
     idx_RH, idx_LH, best_score = 0, 0, -1
