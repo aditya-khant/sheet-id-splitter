@@ -163,7 +163,7 @@ class Score:
         if self._staves is None:
             self._find_staves()
         # downsample then convert to RGB
-        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), 0.3)
+        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
                   for staff in self._staves]
         return call_benchmark(images=images)
 
@@ -184,11 +184,14 @@ class Score:
 
 
 
-def downsample_image(image, rate=0.5):
+def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
     '''
-    Downsamples 'image' by 'rate.'
+    Downsamples 'image' by a ratio 'rate' or by a mentioned size ('width' and 'height')
     '''
-    new_shape = (int(image.shape[0] * rate), int(image.shape[1] * rate))
+    if by_rate:
+        new_shape = (int(image.shape[0] * rate), int(image.shape[1] * rate))
+    if by_size:
+        new_shape = (width, height)
     return cv.resize(image, new_shape)
 
 def split_indices(array, comparator=(lambda x: x == 0)):
