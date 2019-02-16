@@ -162,6 +162,8 @@ class Score:
     def _create_cnn_staff_waveforms(self):
         if self._staves is None:
             self._find_staves()
+        if self._staves == []:
+            return None
         # downsample then convert to RGB
         shape_min_width, shape_min_height = min(staff.shape for staff in self._staves)
         min_width = min(shape_min_width, 500)
