@@ -163,7 +163,9 @@ class Score:
         if self._staves is None:
             self._find_staves()
         # downsample then convert to RGB
-        min_width, min_height = min(staff.shape for staff in self._staves)
+        shape_min_width, shape_min_height = min(staff.shape for staff in self._staves)
+        min_width = min(min_width, 500)
+        min_height = int(shape_min_width*shape_min_height/min_width )
         images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
                   for staff in self._staves]
         if images ==[]:
