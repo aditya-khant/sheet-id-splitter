@@ -307,8 +307,8 @@ def create_waveforms(image, name="", down_sample_rate=0.5):
     Output: Array of cnn staff waveforms
     '''
     s = Score(image, name)
-    return s._create_vertical_input()
-    # return s._create_cnn_staff_waveforms()
+    # return s._create_vertical_input()
+    return s._create_cnn_staff_waveforms()
     # s._create_bar_waveforms()
     # return s._bar_waveform
 
