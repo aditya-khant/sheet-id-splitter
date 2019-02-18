@@ -236,12 +236,11 @@ class Score:
         '''
         if self._bars is None:
             self._find_bars()
-        if self._voice_lines_by_staff is None and voice:
+        if self._voice_lines_by_staff is None:
             self._find_voice_lines()
-        if self._voice_lines_by_page is None and voice_by_page:
-            self._find_voice_lines_page()
+
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
-        for (staff_start, staff_end), bar_lines, voice_lines, voice_page_lines in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff, self._voice_lines_by_page):
+        for (staff_start, staff_end), bar_lines, voice_lines in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff):
             if (staves):
                 cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
                 cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
@@ -252,8 +251,6 @@ class Score:
             if voice:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
-            if voice_by_page:
-                cv.line(img_color, (0, voice_page_lines), (self._score.shape[1], voice_page_lines), (255, 0,255), 5 )
             
         cv.imwrite('{}.png'.format(self._name), img_color)
 
