@@ -230,7 +230,7 @@ class Score:
             self._voice_lines_by_staff.append(filtered_minima)
 
 
-    def _generate_pretty_image(self, bars=True, staves = True, voice=False, voice_by_page = True):
+    def _generate_pretty_image(self, bars=True, staves = True, voice=True, voice_by_page = False):
         '''
         Generates bars and staves on an image
         '''
