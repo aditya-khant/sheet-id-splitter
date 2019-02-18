@@ -198,12 +198,13 @@ class Score:
         minima = argrelextrema(sum_array, np.less)
         minima_list = [(sum_array[i], i) for i in minima[0]]
         minima_list = sorted(minima_list)
-        if minima_list == []:
-            continue
-        threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
-        filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
-        filtered_minima = sorted(filtered_minima)
-        self._voice_lines_by_page += filtered_minima
+        if minima_list != []:
+            threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
+            filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
+            filtered_minima = sorted(filtered_minima)
+            self._voice_lines_by_page += filtered_minima
+        else: 
+            self._voice_lines_by_page += 0
 
     def _find_voice_lines(self):
         """Find voice lines from staves"""
@@ -227,11 +228,7 @@ class Score:
             self._voice_lines_by_staff.append(filtered_minima)
 
 
-    def _generate_pretty_voices(self):
-        pass
-
-
-    def _generate_pretty_image(self, bars=True, staves = True, voice=True):
+    def _generate_pretty_image(self, bars=True, staves = True, voice=False, voice_by_page = True):
         '''
         Generates bars and staves on an image
         '''
@@ -240,7 +237,7 @@ class Score:
         if self._voice_lines_by_staff is None:
             self._find_voice_lines()
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
-        for (staff_start, staff_end), bar_lines, voice_lines in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff):
+        for (staff_start, staff_end), bar_lines, voice_lines, voice_page_line in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff, self._voice_lines_by_page):
             if (staves):
                 cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
                 cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
