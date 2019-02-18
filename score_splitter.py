@@ -147,7 +147,7 @@ class Score:
     def _create_vertical_input(self):
         """Returns vertical images"""
         if self._verticals is None:
-            self._find_vertical_lines
+            self._find_vertical_lines()
         min_width = 300
         min_height = 390
         image = downsample_image(cv.cvtColor(self._verticals,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
