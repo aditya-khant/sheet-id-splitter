@@ -24,6 +24,7 @@ class Score:
         print(score.shape)
         gray = cv.bitwise_not(score)
         bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2)
+        self._score_gray = gray
         self._score     = score
         self._score_bw  = bw
         self._name      = name
@@ -35,6 +36,7 @@ class Score:
         self._bars_start_end = []
         self._bar_waveform = None
         self._voice_lines_by_staff = None
+        self._voice_lines_by_page = None
         # TODO: eventually structure as 3-dimensional array of images
         # dimension 0: staves
         # dimension 1: bars
@@ -141,6 +143,18 @@ class Score:
             for start, end in bar_split_indices:
                 self._bars.append(staff[start:end])
 
+    
+    def _create_vertical_input(self):
+        """Returns vertical images"""
+        if self._verticals is None:
+            self._find_vertical_lines
+        min_width = 300
+        min_height = 390
+        image = downsample_image(cv.cvtColor(self._verticals,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
+        if image ==[]:
+            return None
+        return call_benchmark(images=image)
+
     def _create_bar_waveforms(self):
         '''
         Returns list of vertical sum waveforms
@@ -175,6 +189,21 @@ class Score:
         if images ==[]:
             return None
         return call_benchmark(images=images)
+
+    def _find_voice_lines_page(self):
+        """Finds voice lines on a page"""
+        if self._voice_lines_by_page is None:
+            self._voice_lines_by_page = []
+        sum_array = np.sum(staff, axis=1)
+        minima = argrelextrema(sum_array, np.less)
+        minima_list = [(sum_array[i], i) for i in minima[0]]
+        minima_list = sorted(minima_list)
+        if minima_list == []:
+            continue
+        threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
+        filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
+        filtered_minima = sorted(filtered_minima)
+        self._voice_lines_by_page += filtered_minima
 
     def _find_voice_lines(self):
         """Find voice lines from staves"""
@@ -225,51 +254,6 @@ class Score:
             
         cv.imwrite('{}.png'.format(self._name), img_color)
 
-# TODO: Integrate the code into existing code
-def fitStaffLines(scores, height):
-    N = len(scores)
-    idx_RH, idx_LH, best_score = 0, 0, -1
-    idxs_sorted = np.argsort(scores)[::-1]
-    min_separation = int(height * 1.66)
-    idx1 = idxs_sorted[0]
-    for j in range(1, N):
-        idx2 = idxs_sorted[j]
-        curScore = scores[idx1] + scores[idx2]
-        sep = np.abs(idx1 - idx2)
-        if sep > min_separation and curScore > best_score:
-            best_score = curScore
-            idx_RH = min(idx1, idx2)
-            idx_LH = max(idx1, idx2)
-            break
-    return best_score, idx_RH, idx_LH
-
-def locateStaffLines(s, min_height = 60, max_height = 120, plot = True):
-    rsums = np.sum(s, axis=1)
-    bestScore = 0
-    lineLocs = np.zeros(10)
-    for h in range(min_height,max_height+1):
-        idxs = h * np.arange(5) / 4.0
-        idxs = idxs.round().astype('int')
-        filt = np.zeros(h+1)
-        filt[idxs] = 1 # create comb filter
-        scores = np.convolve(rsums, filt, 'valid')
-        curScore, idx_RH, idx_LH = fitStaffLines(scores, h)
-        if curScore > bestScore:
-            bestScore = curScore
-            lineLocs[0:5] = idxs + idx_RH
-            lineLocs[5:] = idxs + idx_LH
-    
-    if plot:
-        plt.plot(rsums)
-        for i in range(len(lineLocs)):
-            plt.axvline(x=lineLocs[i], color='r', linewidth=1)
-        plt.show()
-        
-    return lineLocs
-
-def testVoices():
-    #TODO:Implement
-    pass
 
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
@@ -323,7 +307,8 @@ def create_waveforms(image, name="", down_sample_rate=0.5):
     Output: Array of cnn staff waveforms
     '''
     s = Score(image, name)
-    return s._create_cnn_staff_waveforms()
+    return s._create_vertical_input()
+    # return s._create_cnn_staff_waveforms()
     # s._create_bar_waveforms()
     # return s._bar_waveform
 
@@ -371,4 +356,47 @@ if __name__ == '__main__':
     # test_bar_waveforms()
     test_pretty_print()
 
+
+#### Deprecated Code ####
+# TODO: Integrate the code into existing code
+def fitStaffLines(scores, height):
+    N = len(scores)
+    idx_RH, idx_LH, best_score = 0, 0, -1
+    idxs_sorted = np.argsort(scores)[::-1]
+    min_separation = int(height * 1.66)
+    idx1 = idxs_sorted[0]
+    for j in range(1, N):
+        idx2 = idxs_sorted[j]
+        curScore = scores[idx1] + scores[idx2]
+        sep = np.abs(idx1 - idx2)
+        if sep > min_separation and curScore > best_score:
+            best_score = curScore
+            idx_RH = min(idx1, idx2)
+            idx_LH = max(idx1, idx2)
+            break
+    return best_score, idx_RH, idx_LH
+
+def locateStaffLines(s, min_height = 60, max_height = 120, plot = True):
+    rsums = np.sum(s, axis=1)
+    bestScore = 0
+    lineLocs = np.zeros(10)
+    for h in range(min_height,max_height+1):
+        idxs = h * np.arange(5) / 4.0
+        idxs = idxs.round().astype('int')
+        filt = np.zeros(h+1)
+        filt[idxs] = 1 # create comb filter
+        scores = np.convolve(rsums, filt, 'valid')
+        curScore, idx_RH, idx_LH = fitStaffLines(scores, h)
+        if curScore > bestScore:
+            bestScore = curScore
+            lineLocs[0:5] = idxs + idx_RH
+            lineLocs[5:] = idxs + idx_LH
+    
+    if plot:
+        plt.plot(rsums)
+        for i in range(len(lineLocs)):
+            plt.axvline(x=lineLocs[i], color='r', linewidth=1)
+        plt.show()
+        
+    return lineLocs
 
