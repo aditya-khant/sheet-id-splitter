@@ -1,16 +1,18 @@
 # Based in part off of: https://docs.opencv.org/4.0.0/dd/dd7/tutorial_morph_lines_detection.html
 
-import numpy as np
-import matplotlib.pyplot as plt
-import sys
-import cv2 as cv
 import os.path as path
+import sys
+
+import cv2 as cv
+import matplotlib.pyplot as plt
+import numpy as np
 from scipy.signal import argrelextrema
 
 # requires score_retrieval
 import score_retrieval.data as data
 # requires cnnpytorch
 from benchmarks import call_benchmark
+
 
 # TODO: add bar splitting, add ability to iterate through directory, unify docstring format.
 class Score:
@@ -251,7 +253,7 @@ class Score:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
             if voice_by_page:
-                cv.line(img_color, (0, line_val), (self._score.shape[1], line_val), (255, 0,255), 5 )
+                cv.line(img_color, (0, voice_page_lines), (self._score.shape[1], voice_page_lines), (255, 0,255), 5 )
             
         cv.imwrite('{}.png'.format(self._name), img_color)
 
@@ -400,4 +402,3 @@ def locateStaffLines(s, min_height = 60, max_height = 120, plot = True):
         plt.show()
         
     return lineLocs
-
