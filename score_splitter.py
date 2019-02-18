@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import sys
 import cv2 as cv
 import os.path as path
+from scipy.signal import argrelextrema
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -33,6 +34,7 @@ class Score:
         self._bars = None
         self._bars_start_end = []
         self._bar_waveform = None
+        self._voice_lines_by_staff = None
         # TODO: eventually structure as 3-dimensional array of images
         # dimension 0: staves
         # dimension 1: bars
@@ -174,19 +176,44 @@ class Score:
             return None
         return call_benchmark(images=images)
 
-    def _generate_pretty_image(self):
+    def _find_voice_lines():
+        """Find voice lines from staves"""
+        if self._staves is None:
+            self._find_staves()
+        if self._staves == []:
+            return None
+        if self._voice_lines_by_staff = None:
+            self._voice_lines_by_staff = []
+        for staff in self._staves:
+            sum_array = np.sum(staff, axis=1)
+            minima = argrelextrema(sum_array, np.less)
+            minima_list = [(sum_array[i], i) for i in minima[0]]
+            minima_list = sorted(minima_list)
+            threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
+            filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
+            filtered_minima = sorted(filtered_minima)
+            self._voice_lines_by_staff.append(filtered_minima)
+
+
+    def _generate_pretty_image(self, bars=True, staves = True, voice=True):
         '''
         Generates bars and staves on an image
         '''
         if self._bars is None:
             self._find_bars()
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
-        for (staff_start, staff_end), bar_lines in zip(self._staves_start_end, self._bars_start_end):
-            cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
-            cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
-            for (bar_start, bar_end) in bar_lines:
-                cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
-                cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+        for (staff_start, staff_end), bar_lines, voice_lines in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff):
+            if (staves):
+                cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
+                cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
+            if (bars):
+                for (bar_start, bar_end) in bar_lines:
+                    cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
+                    cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+            if voice:
+                for line_val in voice_lines:
+                    cv.line(img_color, (0, line_val), (self._score.shape[1], line_val), (0,255,0), 5 )
+            
         cv.imwrite('{}.png'.format(self._name), img_color)
 
 # TODO: Integrate the code into existing code
@@ -317,7 +344,7 @@ def test_bar_waveforms(dataset='mini_dataset', output_dir='./test_staves/'):
 
     print(ret_sum/ret_counter)
 
-def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/pretty_output/'):
+def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice_lines/'):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
@@ -331,8 +358,8 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/prett
         s._generate_pretty_image()
 
 if __name__ == '__main__':
-    test_staves()
+    # test_staves()
     # test_bar_waveforms()
-    # test_pretty_print()
+    test_pretty_print()
 
 
