@@ -190,11 +190,16 @@ class Score:
             minima_list = [(sum_array[i], i) for i in minima[0]]
             minima_list = sorted(minima_list)
             if minima_list == []:
+                self.self._voice_lines_by_staff.append([])
                 continue
             threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
             filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
             filtered_minima = sorted(filtered_minima)
             self._voice_lines_by_staff.append(filtered_minima)
+
+
+    def _generate_pretty_voices(self):
+        pass
 
 
     def _generate_pretty_image(self, bars=True, staves = True, voice=True):
