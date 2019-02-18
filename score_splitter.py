@@ -194,7 +194,7 @@ class Score:
         """Finds voice lines on a page"""
         if self._voice_lines_by_page is None:
             self._voice_lines_by_page = []
-        sum_array = np.sum(staff, axis=1)
+        sum_array = np.sum(self._score_gray, axis=1)
         minima = argrelextrema(sum_array, np.less)
         minima_list = [(sum_array[i], i) for i in minima[0]]
         minima_list = sorted(minima_list)
@@ -236,6 +236,8 @@ class Score:
             self._find_bars()
         if self._voice_lines_by_staff is None:
             self._find_voice_lines()
+        if self._voice_lines_by_page is None:
+            self._find_voice_lines_page()
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         for (staff_start, staff_end), bar_lines, voice_lines, voice_page_lines in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff, self._voice_lines_by_page):
             if (staves):
