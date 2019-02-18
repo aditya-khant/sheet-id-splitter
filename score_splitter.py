@@ -153,7 +153,7 @@ class Score:
         image = downsample_image(cv.cvtColor(self._verticals,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
         if image ==[]:
             return None
-        return call_benchmark(images=image)
+        return call_benchmark(images=[image])
 
     def _create_bar_waveforms(self):
         '''
