@@ -190,7 +190,7 @@ class Score:
             minima_list = [(sum_array[i], i) for i in minima[0]]
             minima_list = sorted(minima_list)
             if minima_list == []:
-                self.self._voice_lines_by_staff.append([])
+                self._voice_lines_by_staff.append([])
                 continue
             threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
             filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
@@ -221,7 +221,7 @@ class Score:
                     cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
             if voice:
                 for line_val in voice_lines:
-                    cv.line(img_color, (0, line_val), (self._score.shape[1], line_val), (0,255,0), 5 )
+                    cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
             
         cv.imwrite('{}.png'.format(self._name), img_color)
 
