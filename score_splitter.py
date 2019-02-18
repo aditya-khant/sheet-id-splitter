@@ -176,19 +176,21 @@ class Score:
             return None
         return call_benchmark(images=images)
 
-    def _find_voice_lines():
+    def _find_voice_lines(self):
         """Find voice lines from staves"""
         if self._staves is None:
             self._find_staves()
         if self._staves == []:
             return None
-        if self._voice_lines_by_staff = None:
+        if self._voice_lines_by_staff is None:
             self._voice_lines_by_staff = []
         for staff in self._staves:
             sum_array = np.sum(staff, axis=1)
             minima = argrelextrema(sum_array, np.less)
             minima_list = [(sum_array[i], i) for i in minima[0]]
             minima_list = sorted(minima_list)
+            if minima_list == []:
+                continue
             threshold = (minima_list[0][0] + minima_list[-1][0]) / 2  #minMax Threshold
             filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
             filtered_minima = sorted(filtered_minima)
@@ -201,6 +203,8 @@ class Score:
         '''
         if self._bars is None:
             self._find_bars()
+        if self._voice_lines_by_staff is None:
+            self._find_voice_lines()
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         for (staff_start, staff_end), bar_lines, voice_lines in zip(self._staves_start_end, self._bars_start_end, self._voice_lines_by_staff):
             if (staves):
