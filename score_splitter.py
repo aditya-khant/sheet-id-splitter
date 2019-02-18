@@ -251,8 +251,7 @@ class Score:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
             if voice_by_page:
-                for line_val in voice_page_lines:
-                    cv.line(img_color, (0, line_val), (self._score.shape[1], line_val), (255, 0,255), 5 )
+                cv.line(img_color, (0, line_val), (self._score.shape[1], line_val), (255, 0,255), 5 )
             
         cv.imwrite('{}.png'.format(self._name), img_color)
 
