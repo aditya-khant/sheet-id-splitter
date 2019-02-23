@@ -230,7 +230,7 @@ class Score:
             self._voice_lines_by_staff.append(filtered_minima)
 
 
-    def _generate_pretty_image(self, bars=True, staves = True, voice=True, voice_by_page = False):
+    def _generate_pretty_image(self, bars=True, staves = True, voice=False, voice_by_page = False):
         '''
         Generates bars and staves on an image
         '''
@@ -245,14 +245,53 @@ class Score:
                 cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
                 cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
             if (bars):
-                for (bar_start, bar_end) in bar_lines:
-                    cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
-                    cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+                if len(bar_lines[0]) == 2:
+                    for (bar_start, bar_end) in bar_lines:
+                        cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
+                        cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
+                if len(bar_lines[0]) == 3:
+                    for (i, bar_start, bar_end) in bar_lines:
+
             if voice:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
             
         cv.imwrite('{}.png'.format(self._name), img_color)
+
+    def _print_with_bars(self, toggle="staves"):
+        """Prints bars and staves for new tuples"""
+        if self._bars_start_end is None:
+            if toggle == "staves":
+                self._find_bars_using_staves()
+            elif toggle == "peaks":
+                self._find_bars_using_peaks()
+            else: 
+                raise Exception("Check Toggle")
+        img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
+        for (staff_start, staff_end) in self._staves_start_end:
+            cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
+            cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
+        for i, start, end in self._bars_start_end:
+            cv.line(img_color, (i, start), (i, end), (0,0,255), 5)
+        cv.imwrite('{}.png'.format(self._name), img_color)
+
+    def _find_bars_using_staves(self):
+        """Finds bars using top 5 and bottom 5 pixels"""
+        if self._staves is None:
+            self._find_staves()
+        self._bars_start_end = []
+        
+        magic_number = 5
+        for start, end in self._staves_start_end:
+                for i in range(self._verticals.shape[1]):
+                        if self._verticals[start + magic_number][i]:
+                            if self._verticals[end - magic_number][i]:
+                                self._bars_start_end += [(i, start, end)]
+
+    
+    def _find_bars_using_peaks(self):
+        """Uses peaks and min maxing to find bars"""
+        pass
 
 
 
@@ -286,6 +325,15 @@ def split_indices_average(array, comparator=(lambda x: x == 0)):
         a1 = line_pair[i+1][1]
         b1 = line_pair[i+2][0]
         yield ( a + ((b-a)//2) , a1 + ((b1-a1)//2))
+
+def cut_array(array, positions, direction="H"):
+    '''Input: array: image array, positions: array of start end tuples
+       Output: array of image arrays cut by positions'''
+    for start , end in positions:
+        if (direction == "H"):
+            yield array[start:end, :]
+        else: 
+            yield array[:, start:end]
 
 def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
     '''
@@ -351,51 +399,22 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
+def test_bar_print(dataset='mini_dataset', output_dir='/home/akhant/bars_using_staves/'):
+    '''
+    Test the staff splitting by rendering where the score would be split for
+    each file.
+    '''
+    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        name = path.split(label)[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, output_dir + name + str(i))
+        s._print_with_bars()
+
 if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
-    test_pretty_print()
+    # test_pretty_print()
+    test_bar_print()
 
-
-#### Deprecated Code ####
-# TODO: Integrate the code into existing code
-def fitStaffLines(scores, height):
-    N = len(scores)
-    idx_RH, idx_LH, best_score = 0, 0, -1
-    idxs_sorted = np.argsort(scores)[::-1]
-    min_separation = int(height * 1.66)
-    idx1 = idxs_sorted[0]
-    for j in range(1, N):
-        idx2 = idxs_sorted[j]
-        curScore = scores[idx1] + scores[idx2]
-        sep = np.abs(idx1 - idx2)
-        if sep > min_separation and curScore > best_score:
-            best_score = curScore
-            idx_RH = min(idx1, idx2)
-            idx_LH = max(idx1, idx2)
-            break
-    return best_score, idx_RH, idx_LH
-
-def locateStaffLines(s, min_height = 60, max_height = 120, plot = True):
-    rsums = np.sum(s, axis=1)
-    bestScore = 0
-    lineLocs = np.zeros(10)
-    for h in range(min_height,max_height+1):
-        idxs = h * np.arange(5) / 4.0
-        idxs = idxs.round().astype('int')
-        filt = np.zeros(h+1)
-        filt[idxs] = 1 # create comb filter
-        scores = np.convolve(rsums, filt, 'valid')
-        curScore, idx_RH, idx_LH = fitStaffLines(scores, h)
-        if curScore > bestScore:
-            bestScore = curScore
-            lineLocs[0:5] = idxs + idx_RH
-            lineLocs[5:] = idxs + idx_LH
-    
-    if plot:
-        plt.plot(rsums)
-        for i in range(len(lineLocs)):
-            plt.axvline(x=lineLocs[i], color='r', linewidth=1)
-        plt.show()
-        
-    return lineLocs
