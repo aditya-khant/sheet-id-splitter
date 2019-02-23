@@ -2,6 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
 
+# requires score_retrieval
+import score_retrieval.data as data
+# requires cnnpytorch
+from benchmarks import call_benchmark
+
 def read_image(filename):
     '''
     read an image and return a tuple of
