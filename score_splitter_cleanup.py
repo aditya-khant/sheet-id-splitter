@@ -224,3 +224,5 @@ def test_voice_lines(dataset='mini_dataset', output_dir='home/ckurashige/voices/
                                          verticals, horizontals, gen_image = True)
     cv.imwrite(output_dir + name, modified_score)
 
+if __name__ == '__main__':
+    test_voice_lines()
