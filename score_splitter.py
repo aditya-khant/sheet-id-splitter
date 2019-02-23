@@ -396,7 +396,7 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
-def test_bar_print(dataset='mini_dataset', output_dir='/home/akhant/bars_using_staves/'):
+def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/'):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
