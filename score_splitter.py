@@ -249,9 +249,6 @@ class Score:
                     for (bar_start, bar_end) in bar_lines:
                         cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
                         cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
-                if len(bar_lines[0]) == 3:
-                    for (i, bar_start, bar_end) in bar_lines:
-
             if voice:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
@@ -399,7 +396,7 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
-def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/'):
+def test_bar_print(dataset='mini_dataset', output_dir='/home/akhant/bars_using_staves/'):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
