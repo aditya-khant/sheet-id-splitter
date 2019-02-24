@@ -257,13 +257,13 @@ class Score:
 
     def _print_with_bars(self, toggle="staves"):
         """Prints bars and staves for new tuples of bars"""
-        if self._bars_start_end is None:
-            if toggle == "staves":
-                self._find_bars_using_staves()
-            elif toggle == "peaks":
-                self._find_bars_using_peaks()
-            else: 
-                raise Exception("Check Toggle")
+        
+        if toggle == "staves":
+            self._find_bars_using_staves()
+        elif toggle == "peaks":
+            self._find_bars_using_peaks()
+        else: 
+            raise Exception("Check Toggle")
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(self._staves_start_end)))
         print("Bars Length: {}".format(len(self._bars_start_end)))
@@ -282,10 +282,10 @@ class Score:
         
         magic_number = 5
         for start, end in self._staves_start_end:
-                for i in range(self._verticals.shape[1]):
-                        if self._verticals[start + magic_number][i]:
-                            if self._verticals[end - magic_number][i]:
-                                self._bars_start_end += [(i, start, end)]
+            for i in range(self._verticals.shape[1]):
+                if self._verticals[start + magic_number][i]:
+                    if self._verticals[end - magic_number][i]:
+                        self._bars_start_end += [(i, start, end)]
 
     
     def _find_bars_using_peaks(self):
