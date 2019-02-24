@@ -249,9 +249,6 @@ class Score:
                     for (bar_start, bar_end) in bar_lines:
                         cv.line(img_color, (bar_start, staff_start), (bar_start, staff_end), (0,0,255), 5 )
                         cv.line(img_color, (bar_end, staff_start), (bar_end, staff_end), (0,0,255), 5 )
-                if len(bar_lines[0]) == 3:
-                    for (i, bar_start, bar_end) in bar_lines:
-
             if voice:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
@@ -259,7 +256,7 @@ class Score:
         cv.imwrite('{}.png'.format(self._name), img_color)
 
     def _print_with_bars(self, toggle="staves"):
-        """Prints bars and staves for new tuples"""
+        """Prints bars and staves for new tuples of bars"""
         if self._bars_start_end is None:
             if toggle == "staves":
                 self._find_bars_using_staves()
@@ -268,6 +265,8 @@ class Score:
             else: 
                 raise Exception("Check Toggle")
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
+        print("Staves Length: {}".format(len(self._staves_start_end)))
+        print("Bars Length: {}".format(len(self._bars_start_end)))
         for (staff_start, staff_end) in self._staves_start_end:
             cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
             cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
@@ -399,7 +398,7 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
-def test_bar_print(dataset='mini_dataset', output_dir='/home/akhant/bars_using_staves/'):
+def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/'):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
