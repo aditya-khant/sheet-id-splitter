@@ -198,11 +198,14 @@ def find_voice_lines(score, staff_indices, verticals, horizontals, gen_image = F
       an array of arrays giving the locations of the voice lines,
       the image generated (if 'gen_image' is True, otherwise None).
     '''
+    # the start of the staves
+    starts = (start for start, end in staff_indices)
     # obtain only the horizontal lines in the region we think is a staff.
     horizontal_staves = (horizontals[start:end] for start, end in staff_indices)
     # a list of list of voicelines
-    voice_lines = [staff_lines for horizontal_staff in horizontal_staves
-                               for staff_lines in locate_staff_lines(horizontal_staff)]
+    voice_lines = [start + staff_lines for start, horizontal_staff in
+                   zip(starts, horizontal_staves) for staff_lines
+                   in locate_staff_lines(horizontal_staff)]
 
     num_cols = score.shape[1]
     if gen_image:
@@ -211,22 +214,22 @@ def find_voice_lines(score, staff_indices, verticals, horizontals, gen_image = F
                 cv.line(score, (0, line), (num_cols, line), (255, 0, 0), 5)
     return voice_lines, score
 
-def test_voice_lines(dataset='mini_dataset', output_dir='home/ckurashige/voices/'):
+def test_voice_lines(dataset='mini_dataset', output_dir='/home/ckurashige/voices/'):
     for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
         # add the enumeration index to disambiguate pieces
         name = 'image_{0}_{1}.png'.format(i, path.split(label)[-1])
         print('processing {}'.format(name))
 
         gray_score, bw_score = read_image(image_file)
-    verticals = find_vertical_lines(bw_score)
-    horizontals = find_horizontal_lines(bw_score)
-    staff_indices, _, modified_score = find_staves(gray_score, verticals,
-                                                   gen_image = True)
-    _, modified_score = find_voice_lines(modified_score, staff_indices,
-                                         verticals, horizontals, gen_image = True)
-    print(modified_score.shape)
-    print(output_dir + name)
-    cv.imwrite(output_dir + name, modified_score)
+        # revert to right coloring
+        gray_score = cv.bitwise_not(gray_score)
+        verticals = find_vertical_lines(bw_score)
+        horizontals = find_horizontal_lines(bw_score)
+        staff_indices, _, modified_score = find_staves(gray_score, verticals,
+                                                    gen_image = True)
+        _, modified_score = find_voice_lines(modified_score, staff_indices,
+                                            verticals, horizontals, gen_image = True)
+        cv.imwrite(output_dir + name, modified_score)
 
 if __name__ == '__main__':
     test_voice_lines()
