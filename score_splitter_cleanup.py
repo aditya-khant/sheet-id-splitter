@@ -1,3 +1,5 @@
+import os.path as path
+
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
@@ -114,7 +116,7 @@ def find_staves(gray_score, verticals, split_type = 'average', gen_image = False
     img_color = None
     # write an image, if told to.
     if gen_image:
-        img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
+        img_color = cv.cvtColor(gray_score,cv.COLOR_GRAY2RGB)
         # red lines, 5 pixels long, denoting the start and end
         for (start, end) in staff_split_indices:
             cv.line(img_color, (0, start), (num_cols, start), (255,0,0), 5 )
@@ -197,12 +199,12 @@ def find_voice_lines(score, staff_indices, verticals, horizontals, gen_image = F
       the image generated (if 'gen_image' is True, otherwise None).
     '''
     # obtain only the horizontal lines in the region we think is a staff.
-    horizontal_staves = (horizontals[start:end] for start, end in indices)
+    horizontal_staves = (horizontals[start:end] for start, end in staff_indices)
     # a list of list of voicelines
-    voice_lines = [staff_lines for staff_lines in locate_staff_lines(horizontal_staff)
-                               for horizontal_staff in horizontal_staves]
+    voice_lines = [staff_lines for horizontal_staff in horizontal_staves
+                               for staff_lines in locate_staff_lines(horizontal_staff)]
 
-    _, num_cols = score.shape
+    num_cols = score.shape[1]
     if gen_image:
         for voice_line in voice_lines:
             for line in voice_line:
@@ -222,6 +224,8 @@ def test_voice_lines(dataset='mini_dataset', output_dir='home/ckurashige/voices/
                                                    gen_image = True)
     _, modified_score = find_voice_lines(modified_score, staff_indices,
                                          verticals, horizontals, gen_image = True)
+    print(modified_score.shape)
+    print(output_dir + name)
     cv.imwrite(output_dir + name, modified_score)
 
 if __name__ == '__main__':
