@@ -277,7 +277,7 @@ class Score:
     def _find_bars_using_staves(self):
         """Finds bars using top 5 and bottom 5 pixels"""
         if self._staves is None:
-            self._find_staves()
+            self._find_staves(split_type='strict')
         self._bars_start_end = []
         
         magic_number = 5
