@@ -256,7 +256,7 @@ class Score:
         cv.imwrite('{}.png'.format(self._name), img_color)
 
     def _print_with_bars(self, toggle="staves"):
-        """Prints bars and staves for new tuples"""
+        """Prints bars and staves for new tuples of bars"""
         if self._bars_start_end is None:
             if toggle == "staves":
                 self._find_bars_using_staves()
@@ -265,6 +265,8 @@ class Score:
             else: 
                 raise Exception("Check Toggle")
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
+        print("Staves Length: {}".format(len(self._staves_start_end)))
+        print("Bars Length: {}".format(len(self._bars_start_end)))
         for (staff_start, staff_end) in self._staves_start_end:
             cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
             cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
