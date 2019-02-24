@@ -145,7 +145,7 @@ class Score:
             for start, end in bar_split_indices:
                 self._bars.append(staff[start:end])
 
-    
+
     def _create_vertical_input(self):
         """Returns vertical images"""
         if self._verticals is None:
@@ -184,8 +184,8 @@ class Score:
             return None
         # downsample then convert to RGB
         shape_min_width, shape_min_height = min(staff.shape for staff in self._staves)
-        min_width = 500
-        min_height = 200
+        min_width = 250
+        min_height = 100
         images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
                   for staff in self._staves]
         if images ==[]:
@@ -205,7 +205,7 @@ class Score:
             filtered_minima = [x[1] for x in minima_list if x[0] < threshold ]
             filtered_minima = sorted(filtered_minima)
             self._voice_lines_by_page += filtered_minima
-        else: 
+        else:
             self._voice_lines_by_page += 0
 
     def _find_voice_lines(self):
@@ -252,17 +252,17 @@ class Score:
             if voice:
                 for line_val in voice_lines:
                     cv.line(img_color, (0, staff_start + line_val), (self._score.shape[1], staff_start + line_val), (0,255,0), 5 )
-            
+
         cv.imwrite('{}.png'.format(self._name), img_color)
 
     def _print_with_bars(self, toggle="staves"):
         """Prints bars and staves for new tuples of bars"""
-        
+
         if toggle == "staves":
             self._find_bars_using_staves()
         elif toggle == "peaks":
             self._find_bars_using_peaks()
-        else: 
+        else:
             raise Exception("Check Toggle")
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(self._staves_start_end)))
@@ -279,7 +279,7 @@ class Score:
         if self._staves is None:
             self._find_staves(split_type='strict')
         self._bars_start_end = []
-        
+
         magic_number = 5
         for start, end in self._staves_start_end:
             for i in range(self._verticals.shape[1]):
@@ -287,7 +287,7 @@ class Score:
                     if self._verticals[end - magic_number][i]:
                         self._bars_start_end += [(i, start, end)]
 
-    
+
     def _find_bars_using_peaks(self):
         """Uses peaks and min maxing to find bars"""
         pass
@@ -331,7 +331,7 @@ def cut_array(array, positions, direction="H"):
     for start , end in positions:
         if (direction == "H"):
             yield array[start:end, :]
-        else: 
+        else:
             yield array[:, start:end]
 
 def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
