@@ -227,7 +227,7 @@ def start_end_voice_lines(staff_indices, verticals, horizontals):
         of each voice line.
     '''
     voice_lines = find_voice_lines(staff_indices, verticals, horizontals)
-    for voice_line_by_staff in voicelines:
+    for voice_line_by_staff in voice_lines:
         for voice_line_by_voice in voice_line_by_staff:
             # not a magic number, for once: we have only five lines per voice
             yield voice_line_by_voice[0], voice_line_by_voice[4]
@@ -242,7 +242,7 @@ def start_end_voice_lines_by_staff(staff_indices, verticals, horizontals):
       an iterator of a list of (start,end) per staff, where each are the
         locations of the start and end of each voice line. '''
     voice_lines = find_voice_lines(staff_indices, verticals, horizontals)
-    for voice_line_by_staff in voicelines:
+    for voice_line_by_staff in voice_lines:
         # not a magic number, for once: we have only five lines per voice
         yield [(voice_line_by_voice[0], voice_line_by_voice[4]) for
                voice_line_by_voice in voice_line_by_staff]
