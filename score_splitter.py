@@ -479,8 +479,8 @@ if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
-    test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     test_bar_print()
     test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
+    test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
 
