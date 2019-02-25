@@ -306,7 +306,7 @@ class Score:
         self._bars_start_end = []
 
         for start, end in self._staves_start_end:
-            one_staff = list(cut_array(self._noisy_verticals, [start, end]))[0]
+            one_staff = list(cut_array(self._noisy_verticals, [(start, end)]))[0]
             sum_array = one_staff.sum(axis=0)
             maxima = find_peaks(sum_array)
             maxima_list = [(sum_array[i], i) for i in maxima[0]]
