@@ -350,11 +350,8 @@ class Score:
         for start , end in self._staves_start_end:
             staff = intersections[start:end, :]
             sum_staff = staff.sum(axis=0)
-            plt.scatter(np.arange(sum_staff.size), sum_staff)
-            plt.show()
-            plt.clf()
             bar_lines = find_peaks(sum_staff)
-            bars_for_staff = [(i,start, end) for i in bar_lines]
+            bars_for_staff = [(i,start, end) for i in bar_lines[0]]
             self._bars_start_end += bars_for_staff
        
 
