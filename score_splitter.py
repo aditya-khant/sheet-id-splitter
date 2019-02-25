@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import argrelextrema
 from scipy.signal import find_peaks
+from score_splitter_cleanup import start_end_voice_lines
+from score_splitter_cleanup import start_end_voice_lines_by_staff
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -292,7 +294,8 @@ class Score:
         self._bars_start_end = []
 
         magic_number = 5
-        for start, end in self._staves_start_end:
+        cole_voice_lines = start_end_voice_lines(self._staves_start_end, self._verticals, self._horizontals)
+        for start, end in cole_voice_lines:
             for i in range(self._verticals.shape[1]):
                 if self._verticals[start + magic_number][i]:
                     if self._verticals[end - magic_number][i]:
@@ -452,6 +455,7 @@ if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
-    test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
     test_bar_print()
+    test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
+    
 
