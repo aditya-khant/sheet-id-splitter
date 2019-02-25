@@ -7,6 +7,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import argrelextrema
+from scipy.signal import find_peaks
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -31,6 +32,7 @@ class Score:
         self._score_bw  = bw
         self._name      = name
         self._verticals = None
+        self._noisy_verticals = None #useful for bar line detection (Also note this is normalized)
         self._staves    = None
         self._staves_verticals = None
         self._staves_start_end = []
@@ -49,6 +51,7 @@ class Score:
         generates an image of the same shape as 'self._score_bw' where only the vertical lines remain.
         '''
         self._verticals = np.copy(self._score_bw)
+        self._noisy_verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
         rows, _ = self._verticals.shape
         # TODO: Smaller the magic number bigger the filtered out lines are
@@ -59,6 +62,14 @@ class Score:
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
+        
+        vertical_size = rows // 50
+        # Create structure element for extracting vertical lines through morphology operations
+        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
+        self._noisy_verticals = cv.erode(self._noisy_verticals, vertical_structure)
+        self._noisy_verticals = cv.dilate(self._noisy_verticals, vertical_structure)
+        #normalized
+        self._noisy_verticals = self._noisy_verticals // self._noisy_verticals.max()
 
     def _find_staves(self, split_type = 'average', plot_split_lines = False, imwrite=False):
         '''
@@ -290,9 +301,23 @@ class Score:
 
     def _find_bars_using_peaks(self):
         """Uses peaks and min maxing to find bars"""
-        pass
+        if self._staves is None:
+            self._find_staves()
+        self._bars_start_end = []
 
-
+        for start, end in self._staves_start_end:
+            one_staff = list(cut_array(self._noisy_verticals, [start, end]))[0]
+            sum_array = one_staff.sum(axis=0)
+            maxima = find_peaks(sum_array)
+            maxima_list = [(sum_array[i], i) for i in maxima[0]]
+            maxima_list = sorted(maxima_list)
+            
+            if maxima_list != []:
+                threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2  #minMax Threshold
+                filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                filtered = sorted(filtered)
+                for i in filtered:
+                    self._bars_start_end += [(i, start, end)]
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
     '''
@@ -398,7 +423,7 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
-def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/'):
+def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/', toggle="staves"):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
@@ -409,11 +434,12 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
         print('processing image {0} with name {1}'.format(i, name))
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
-        s._print_with_bars()
+        s._print_with_bars(toggle=toggle)
 
 if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
     test_bar_print()
+    test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
 
