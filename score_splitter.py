@@ -63,7 +63,7 @@ class Score:
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
         
-        vertical_size = rows // 30
+        vertical_size = rows // 40
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         self._noisy_verticals = cv.erode(self._noisy_verticals, vertical_structure)
@@ -314,7 +314,7 @@ class Score:
             maxima_list = sorted(maxima_list)
             
             switch_magic_number = 0.01
-            thresh_magic_number = 1.5
+            thresh_magic_number = 2
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
