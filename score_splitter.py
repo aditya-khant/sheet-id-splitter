@@ -302,7 +302,7 @@ class Score:
     def _find_bars_using_peaks(self):
         """Uses peaks and min maxing to find bars"""
         if self._staves is None:
-            self._find_staves()
+            self._find_staves(split_type='strict')
         self._bars_start_end = []
         a = 0
         b = 0
