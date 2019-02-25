@@ -311,6 +311,8 @@ class Score:
             maxima = find_peaks(sum_array)
             maxima_list = [(sum_array[i], i) for i in maxima[0]]
             maxima_list = sorted(maxima_list)
+            a = 0
+            b = 0
             magic_number = 0.1
             if maxima_list != []:
                 minimum = maxima_list[0][0]
@@ -319,10 +321,14 @@ class Score:
                     threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2  #minMax Threshold
                     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
                     filtered = sorted(filtered)
+                    a += 1
                 else: 
                     filtered = [x[1] for x in maxima_list]
+                    b+=1
                 for i in filtered:
                     self._bars_start_end += [(i, start, end)]
+            print("a: {}".format(a))
+            print("b: {}".format(b))
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
     '''
