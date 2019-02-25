@@ -154,7 +154,7 @@ def fit_staff_lines(scores, height, cutoff, separation_factor = 1.66):
     #         break
     return best_score, valid_indices
 
-def locate_staff_lines(s, cutoff_percent = 0.5, min_height = 20, max_height = 300, plot = False):
+def locate_staff_lines(s, cutoff_percent = 0.5, min_height = 20, max_height = 250, plot = False):
     '''
     Mint and Mek's code.
     TODO: Document.
@@ -186,33 +186,66 @@ def locate_staff_lines(s, cutoff_percent = 0.5, min_height = 20, max_height = 30
         plt.show()
     return lineLocs
 
-def find_voice_lines(score, staff_indices, verticals, horizontals, gen_image = False):
+def find_voice_lines(staff_indices, verticals, horizontals, score = None):
     '''
     params:
-      score         -- an (RGB) image of the score.
       staff_indices -- a list of (start,end) tuples of where to split to get staves.
       verticals     -- the vertical lines of the score (same shape as gray_score).
       horizontals   -- the horizontal lines of the score (same shape as gray-score).
-      gen_image     -- generate an image with the voicelines identified
+      score         -- an (RGB) image of the score to modify. If None, the score
+                       is not modified.
     returns:
-      an array of arrays giving the locations of the voice lines,
-      the image generated (if 'gen_image' is True, otherwise None).
+      voice_lines[staff][voice][line], where 'staff' specifies which staff,
+        'voice' specifies which voice, and 'line' specifies which line (0-4)
     '''
     # the start of the staves
     starts = (start for start, end in staff_indices)
     # obtain only the horizontal lines in the region we think is a staff.
     horizontal_staves = (horizontals[start:end] for start, end in staff_indices)
-    # a list of list of voicelines
-    voice_lines = [start + staff_lines for start, horizontal_staff in
-                   zip(starts, horizontal_staves) for staff_lines
-                   in locate_staff_lines(horizontal_staff)]
+    # a list of lists of lists of voicelines
+    voice_lines = [[start + staff_lines for staff_lines in
+                   locate_staff_lines(horizontal_staff)] for start,
+                   horizontal_staff in zip(starts, horizontal_staves)]
 
-    num_cols = score.shape[1]
-    if gen_image:
-        for voice_line in voice_lines:
-            for line in voice_line:
-                cv.line(score, (0, line), (num_cols, line), (255, 0, 0), 5)
-    return voice_lines, score
+    if score is not None:
+        num_cols = score.shape[1]
+        for voice_line_by_staff in voice_lines:
+            for voice_line_by_voice in voice_line_by_staff:
+                # these are the actual lines
+                for line in voice_line_by_voice:
+                    cv.line(score, (0, line), (num_cols, line), (255, 0, 0), 5)
+    return voice_lines
+
+def start_end_voice_lines(staff_indices, verticals, horizontals):
+    '''
+    params:
+      staff_indices -- a list of (start,end) tuples of where to split to get staves.
+      verticals     -- the vertical lines of the score (same shape as gray_score).
+      horizontals   -- the horizontal lines of the score (same shape as gray-score).
+    returns:
+      an iterator of (start,end) where each are the locations of the start and end
+        of each voice line.
+    '''
+    voice_lines = find_voice_lines(staff_indices, verticals, horizontals)
+    for voice_line_by_staff in voicelines:
+        for voice_line_by_voice in voice_line_by_staff:
+            # not a magic number, for once: we have only five lines per voice
+            yield voice_line_by_voice[0], voice_line_by_voice[4]
+
+def start_end_voice_lines_by_staff(staff_indices, verticals, horizontals):
+    '''
+    params:
+      staff_indices -- a list of (start,end) tuples of where to split to get staves.
+      verticals     -- the vertical lines of the score (same shape as gray_score).
+      horizontals   -- the horizontal lines of the score (same shape as gray-score).
+    returns:
+      an iterator of a list of (start,end) per staff, where each are the
+        locations of the start and end of each voice line. '''
+    voice_lines = find_voice_lines(staff_indices, verticals, horizontals)
+    for voice_line_by_staff in voicelines:
+        # not a magic number, for once: we have only five lines per voice
+        yield [(voice_line_by_voice[0], voice_line_by_voice[4]) for
+               voice_line_by_voice in voice_line_by_staff]
 
 def test_voice_lines(dataset='mini_dataset', output_dir='/home/ckurashige/voices/'):
     for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
