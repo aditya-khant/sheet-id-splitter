@@ -313,7 +313,7 @@ class Score:
             maxima_list = sorted(maxima_list)
             a = 0
             b = 0
-            magic_number = 0.1
+            magic_number = 0.01
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
