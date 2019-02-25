@@ -124,7 +124,7 @@ def find_staves(gray_score, verticals, split_type = 'average', gen_image = False
 
     return staff_split_indices, staves, img_color
 
-def fit_staff_lines(scores, height, cutoff):
+def fit_staff_lines(scores, height, cutoff, separation_factor = 1.66):
     '''
     Mint and Mek's code.
     TODO: Document.
@@ -132,7 +132,7 @@ def fit_staff_lines(scores, height, cutoff):
     N = len(scores)
     # idx_RH, idx_LH, best_score = 0, 0, -1
     # idxs_sorted = np.argsort(scores)[::-1]
-    min_separation = int(height * 1.66)
+    min_separation = int(height * separation_factor)
     best_ind = np.argmax(scores)
     best_score = scores[best_ind]
     cutoff_score = best_score * cutoff
