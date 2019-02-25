@@ -10,6 +10,7 @@ from scipy.signal import argrelextrema
 from scipy.signal import find_peaks
 from score_splitter_cleanup import start_end_voice_lines
 from score_splitter_cleanup import start_end_voice_lines_by_staff
+from score_splitter_cleanup import find_horizontal_lines
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -43,6 +44,7 @@ class Score:
         self._bar_waveform = None
         self._voice_lines_by_staff = None
         self._voice_lines_by_page = None
+        self._horizontals = None
         # TODO: eventually structure as 3-dimensional array of images
         # dimension 0: staves
         # dimension 1: bars
@@ -52,6 +54,7 @@ class Score:
         '''
         generates an image of the same shape as 'self._score_bw' where only the vertical lines remain.
         '''
+        self._horizontals = find_horizontal_lines(self._score_bw)
         self._verticals = np.copy(self._score_bw)
         self._noisy_verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
@@ -290,7 +293,7 @@ class Score:
     def _find_bars_using_staves(self):
         """Finds bars using top 5 and bottom 5 pixels"""
         if self._staves is None:
-            self._find_staves(split_type='strict')
+            self._find_staves()
         self._bars_start_end = []
 
         magic_number = 5
