@@ -304,15 +304,15 @@ class Score:
         if self._staves is None:
             self._find_staves()
         self._bars_start_end = []
-
+        a = 0
+        b = 0
         for start, end in self._staves_start_end:
             one_staff = list(cut_array(self._noisy_verticals, [(start, end)]))[0]
             sum_array = one_staff.sum(axis=0)
             maxima = find_peaks(sum_array)
             maxima_list = [(sum_array[i], i) for i in maxima[0]]
             maxima_list = sorted(maxima_list)
-            a = 0
-            b = 0
+            
             magic_number = 0.01
             if maxima_list != []:
                 minimum = maxima_list[0][0]
@@ -327,8 +327,8 @@ class Score:
                     b+=1
                 for i in filtered:
                     self._bars_start_end += [(i, start, end)]
-            print("a: {}".format(a))
-            print("b: {}".format(b))
+        print("a: {}".format(a))
+        print("b: {}".format(b))
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
     '''
