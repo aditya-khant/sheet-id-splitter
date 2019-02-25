@@ -314,12 +314,12 @@ class Score:
             maxima_list = sorted(maxima_list)
             
             switch_magic_number = 0.01
-            thresh_magic_number = 0.9
+            thresh_magic_number = 1.5
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
                 if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
-                    threshold = thresh_magic_number*(maxima_list[0][0] + maxima_list[-1][0])   #minMax Threshold
+                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
                     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
                     filtered = sorted(filtered)
                     a += 1
