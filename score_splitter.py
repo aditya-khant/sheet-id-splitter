@@ -63,7 +63,7 @@ class Score:
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
         
-        vertical_size = rows // 50
+        vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         self._noisy_verticals = cv.erode(self._noisy_verticals, vertical_structure)
