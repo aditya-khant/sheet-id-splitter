@@ -213,7 +213,7 @@ def find_voice_lines(staff_indices, verticals, horizontals, score = None):
             for voice_line_by_voice in voice_line_by_staff:
                 # these are the actual lines
                 for line in voice_line_by_voice:
-                    cv.line(score, (0, line), (num_cols, line), (255, 0, 0), 5)
+                    cv.line(score, (0, line), (num_cols, line), (0, 0, 255), 5)
     return voice_lines
 
 def start_end_voice_lines(staff_indices, verticals, horizontals):
