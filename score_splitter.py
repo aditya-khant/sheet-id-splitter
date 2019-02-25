@@ -311,11 +311,16 @@ class Score:
             maxima = find_peaks(sum_array)
             maxima_list = [(sum_array[i], i) for i in maxima[0]]
             maxima_list = sorted(maxima_list)
-            
+            magic_number = 0.1
             if maxima_list != []:
-                threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2  #minMax Threshold
-                filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                filtered = sorted(filtered)
+                minimum = maxima_list[0][0]
+                maximum = maxima_list[-1][0] 
+                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > magic_number:
+                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2  #minMax Threshold
+                    filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                    filtered = sorted(filtered)
+                else: 
+                    filtered = [x[1] for x in maxima_list]
                 for i in filtered:
                     self._bars_start_end += [(i, start, end)]
 
