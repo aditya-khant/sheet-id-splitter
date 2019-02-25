@@ -260,8 +260,7 @@ def test_voice_lines(dataset='mini_dataset', output_dir='/home/ckurashige/voices
         horizontals = find_horizontal_lines(bw_score)
         staff_indices, _, modified_score = find_staves(gray_score, verticals,
                                                     gen_image = True)
-        _, modified_score = find_voice_lines(modified_score, staff_indices,
-                                            verticals, horizontals, gen_image = True)
+        find_voice_lines(staff_indices, verticals, horizontals, modified_score)
         cv.imwrite(output_dir + name, modified_score)
 
 if __name__ == '__main__':
