@@ -63,7 +63,7 @@ class Score:
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
         
-        vertical_size = rows // 30
+        vertical_size = rows // 40
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         self._noisy_verticals = cv.erode(self._noisy_verticals, vertical_structure)
@@ -302,7 +302,7 @@ class Score:
     def _find_bars_using_peaks(self):
         """Uses peaks and min maxing to find bars"""
         if self._staves is None:
-            self._find_staves(split_type='strict')
+            self._find_staves()
         self._bars_start_end = []
         a = 0
         b = 0
@@ -313,12 +313,13 @@ class Score:
             maxima_list = [(sum_array[i], i) for i in maxima[0]]
             maxima_list = sorted(maxima_list)
             
-            magic_number = 0.005
+            switch_magic_number = 0.01
+            thresh_magic_number = 2
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
-                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > magic_number:
-                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2  #minMax Threshold
+                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
+                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
                     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
                     filtered = sorted(filtered)
                     a += 1
