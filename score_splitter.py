@@ -278,6 +278,8 @@ class Score:
             self._find_bars_using_staves()
         elif toggle == "peaks":
             self._find_bars_using_peaks()
+        elif toggle == "intersect":
+            self._find_bars_by_intersection()
         else:
             raise Exception("Check Toggle")
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
@@ -299,12 +301,13 @@ class Score:
         magic_number = 5
         cole_voice_lines = start_end_voice_lines_by_staff(self._staves_start_end, self._verticals, self._horizontals)
         for lines in cole_voice_lines:
-            start = lines[0][0]
-            end = lines[-1][-1]
-            for i in range(self._verticals.shape[1]):
-                if self._verticals[start + magic_number][i]:
-                    if self._verticals[end - magic_number][i]:
-                        self._bars_start_end += [(i, start, end)]
+            if lines != []:
+                start = lines[0][0]
+                end = lines[-1][-1]
+                for i in range(self._verticals.shape[1]):
+                    if self._verticals[start + magic_number][i]:
+                        if self._verticals[end - magic_number][i]:
+                            self._bars_start_end += [(i, start, end)]
 
 
     def _find_bars_using_peaks(self):
@@ -338,6 +341,22 @@ class Score:
                     self._bars_start_end += [(i, start, end)]
         print("a: {}".format(a))
         print("b: {}".format(b))
+
+    def _find_bars_by_intersection(self):
+        if self._staves is None:
+            self._find_staves()
+        self._bars_start_end = []
+        intersections = np.logical_and(self._horizontals, self._verticals)
+        for start , end in self._staves_start_end:
+            staff = intersections[start:end, :]
+            sum_staff = staff.sum(axis=0)
+            plt.scatter(np.arange(sum_staff.size), sum_staff)
+            plt.show()
+            plt.clf()
+            bar_lines = find_peaks(sum_staff)
+            bars_for_staff = [(i,start, end) for i in bar_lines]
+            self._bars_start_end += bars_for_staff
+       
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
     '''
@@ -460,6 +479,7 @@ if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
+    test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     test_bar_print()
     test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
     
