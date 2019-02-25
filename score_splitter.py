@@ -297,8 +297,10 @@ class Score:
         self._bars_start_end = []
 
         magic_number = 5
-        cole_voice_lines = start_end_voice_lines(self._staves_start_end, self._verticals, self._horizontals)
-        for start, end in cole_voice_lines:
+        cole_voice_lines = start_end_voice_lines_by_staff(self._staves_start_end, self._verticals, self._horizontals)
+        for lines in cole_voice_lines:
+            start = lines[0][0]
+            end = lines[-1][-1]
             for i in range(self._verticals.shape[1]):
                 if self._verticals[start + magic_number][i]:
                     if self._verticals[end - magic_number][i]:
