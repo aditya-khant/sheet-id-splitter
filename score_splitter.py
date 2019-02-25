@@ -286,10 +286,10 @@ class Score:
         print("Staves Length: {}".format(len(self._staves_start_end)))
         print("Bars Length: {}".format(len(self._bars_start_end)))
         for (staff_start, staff_end) in self._staves_start_end:
-            cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 5 )
-            cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 5 )
+            cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 2 )
+            cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 2 )
         for i, start, end in self._bars_start_end:
-            cv.line(img_color, (i, start), (i, end), (0,0,255), 5)
+            cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
         cv.imwrite('{}.png'.format(self._name), img_color)
 
     def _find_bars_using_staves(self):
@@ -317,28 +317,32 @@ class Score:
         self._bars_start_end = []
         a = 0
         b = 0
-        for start, end in self._staves_start_end:
-            one_staff = list(cut_array(self._noisy_verticals, [(start, end)]))[0]
-            sum_array = one_staff.sum(axis=0)
-            maxima = find_peaks(sum_array)
-            maxima_list = [(sum_array[i], i) for i in maxima[0]]
-            maxima_list = sorted(maxima_list)
-            
-            switch_magic_number = 0.01
-            thresh_magic_number = 2
-            if maxima_list != []:
-                minimum = maxima_list[0][0]
-                maximum = maxima_list[-1][0] 
-                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
-                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
-                    filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                    filtered = sorted(filtered)
-                    a += 1
-                else: 
-                    filtered = [x[1] for x in maxima_list]
-                    b+=1
-                for i in filtered:
-                    self._bars_start_end += [(i, start, end)]
+        cole_voice_lines = start_end_voice_lines_by_staff(self._staves_start_end, self._verticals, self._horizontals)
+        for lines in cole_voice_lines:
+            if lines != []:
+                start = lines[0][0]
+                end = lines[-1][-1]
+                one_staff = list(cut_array(self._noisy_verticals, [(start, end)]))[0]
+                sum_array = one_staff.sum(axis=0)
+                maxima = find_peaks(sum_array)
+                maxima_list = [(sum_array[i], i) for i in maxima[0]]
+                maxima_list = sorted(maxima_list)
+                
+                switch_magic_number = 0.01
+                thresh_magic_number = 2
+                if maxima_list != []:
+                    minimum = maxima_list[0][0]
+                    maximum = maxima_list[-1][0] 
+                    if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
+                        threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
+                        filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                        filtered = sorted(filtered)
+                        a += 1
+                    else: 
+                        filtered = [x[1] for x in maxima_list]
+                        b+=1
+                    for i in filtered:
+                        self._bars_start_end += [(i, start, end)]
         print("a: {}".format(a))
         print("b: {}".format(b))
 
