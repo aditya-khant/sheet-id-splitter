@@ -137,8 +137,8 @@ class Score:
                 cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
         
         if len(staff_split_indices) == 0:
-            self._staves.append(self._score[start:end])
-            self._staves_verticals.append(self._verticals[start:end])
+            self._staves.append(self._score)
+            self._staves_verticals.append(self._verticals)
 
         # if told to, save the image
         if plot_split_lines:
@@ -337,14 +337,14 @@ class Score:
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
-                # if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
-                #     threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
-                #     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                #     filtered = sorted(filtered)
-                #     a += 1
-                # else: 
-                filtered = [x[1] for x in maxima_list]
-                b+=1
+                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
+                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
+                    filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                    filtered = sorted(filtered)
+                    a += 1
+                else: 
+                    filtered = [x[1] for x in maxima_list]
+                    b+=1
                 bars_in_this_stave = []
                 for i in filtered:
                     bars_in_this_stave += [(i, start, end)]
