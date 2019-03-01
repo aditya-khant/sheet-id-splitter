@@ -497,7 +497,7 @@ def cleanup_bars(bars, width):
             return bars
         elif len(bars) < 4:
             l_diffs = []
-            for i in range(len(bars)):
+            for i in range(len(bars) - 1):
                 l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
             if l_diffs[0] < width:
                 return bars[1:]
