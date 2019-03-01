@@ -500,7 +500,7 @@ def cleanup_bars(bars, width):
         for i in range(len(bars) - 1):
             l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
         if l_diffs[0] < width:
-            return bars[1:]
+            return cleanup_bars(bars[1:], width)
         else:
             return [bars[0]] + cleanup_bars(bars[1:], width)
     else:
@@ -515,7 +515,7 @@ def cleanup_bars(bars, width):
             if l_diffs[0] < l_diffs[2]:
                 new_bars = [bars[0]] + bars[2:] 
             else:
-                new_bars = bars[0:1] + bars[3:]
+                new_bars = bars[0:2] + bars[3:]
             return cleanup_bars(new_bars, width)
         else:
             return [bars[0]] + cleanup_bars(bars[1:], width)
