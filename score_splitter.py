@@ -492,36 +492,35 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
 
 def cleanup_bars(bars, width):
     """Cleans up a set of bars in staves after overdetection"""
-    try:
-        if len(bars) <= 1:
-            return bars
-        elif len(bars) < 4:
-            l_diffs = []
-            for i in range(len(bars) - 1):
-                l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
-            if l_diffs[0] < width:
-                return bars[1:]
-            else:
-                return [bars[0]] + cleanup_bars(bars[1:], width)
+    
+    if len(bars) <= 1:
+        return bars
+    elif len(bars) < 4:
+        l_diffs = []
+        for i in range(len(bars) - 1):
+            l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
+        if l_diffs[0] < width:
+            return bars[1:]
         else:
-            l_diffs = []
-            for i in range(3):
-                l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
-
-            if l_diffs[0] < width:
-                new_bars = [bars[0]] + bars[2:]
-                return cleanup_bars(new_bars, width)
-
-            if l_diffs[1] < width:
-                if l_diffs[0] < l_diffs[2]:
-                    new_bars = [bars[0]] + bars[2:] 
-                else:
-                    new_bars = bars[0:1] + bars[3:]
-                return cleanup_bars(new_bars, width)
-            
             return [bars[0]] + cleanup_bars(bars[1:], width)
-    except:
-        print(bars)       
+    else:
+        l_diffs = []
+        for i in range(3):
+            l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
+
+        if l_diffs[0] < width:
+            new_bars = [bars[0]] + bars[2:]
+            return cleanup_bars(new_bars, width)
+
+        if l_diffs[1] < width:
+            if l_diffs[0] < l_diffs[2]:
+                new_bars = [bars[0]] + bars[2:] 
+            else:
+                new_bars = bars[0:1] + bars[3:]
+            return cleanup_bars(new_bars, width)
+        
+        return [bars[0]] + cleanup_bars(bars[1:], width)
+    
 
 if __name__ == '__main__':
     # test_staves()
