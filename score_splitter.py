@@ -109,6 +109,9 @@ class Score:
             staff_split_indices = list(split_indices(horiz_sum_verts))
         else:
             raise Exception('Invalid split_type given')
+        
+        
+
 
         # if told to, plot the source
         if plot_split_lines:
@@ -132,6 +135,10 @@ class Score:
             if imwrite:
                 cv.line(img_color, (0, start), (self._score.shape[1], start), (255,0,0), 5 )
                 cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
+        
+        if len(staff_split_indices) == 0:
+            self._staves.append(self._score[start:end])
+            self._staves_verticals.append(self._verticals[start:end])
 
         # if told to, save the image
         if plot_split_lines:
@@ -515,8 +522,8 @@ if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
-    test_bar_print()
+    # test_bar_print()
     test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
-    test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
+    # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
 
