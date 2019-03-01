@@ -511,15 +511,14 @@ def cleanup_bars(bars, width):
         if l_diffs[0] < width:
             new_bars = [bars[0]] + bars[2:]
             return cleanup_bars(new_bars, width)
-
-        if l_diffs[1] < width:
+        elif l_diffs[1] < width:
             if l_diffs[0] < l_diffs[2]:
                 new_bars = [bars[0]] + bars[2:] 
             else:
                 new_bars = bars[0:1] + bars[3:]
             return cleanup_bars(new_bars, width)
-        
-        return [bars[0]] + cleanup_bars(bars[1:], width)
+        else:
+            return [bars[0]] + cleanup_bars(bars[1:], width)
     
 
 if __name__ == '__main__':
