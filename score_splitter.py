@@ -310,7 +310,7 @@ class Score:
                             self._bars_start_end += [(i, start, end)]
 
 
-    def _find_bars_using_peaks(self):
+    def _find_bars_using_peaks(self, clean_up = True):
         """Uses peaks and min maxing to find bars"""
         if self._staves is None:
             self._find_staves()
@@ -326,22 +326,29 @@ class Score:
             maxima_list = sorted(maxima_list)
             
             switch_magic_number = 0.01
-            thresh_magic_number = 2
+            thresh_magic_number = 3
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
-                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
-                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
-                    filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                    filtered = sorted(filtered)
-                    a += 1
-                else: 
-                    filtered = [x[1] for x in maxima_list]
-                    b+=1
+                # if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
+                #     threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
+                #     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                #     filtered = sorted(filtered)
+                #     a += 1
+                # else: 
+                filtered = [x[1] for x in maxima_list]
+                b+=1
+                bars_in_this_stave = []
                 for i in filtered:
-                    self._bars_start_end += [(i, start, end)]
-        print("a: {}".format(a))
-        print("b: {}".format(b))
+                    bars_in_this_stave += [(i, start, end)]
+                
+                if clean_up:
+                    width_magic_number = 10
+                    self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
+            else: 
+                self._bars_start_end += [(0, start, end)]
+                self._bars_start_end += [(self._score.shape[0], start, end)]
+
 
     def _find_bars_by_intersection(self):
         if self._staves is None:
@@ -472,6 +479,37 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._print_with_bars(toggle=toggle)
+
+
+def cleanup_bars(bars, width):
+    """Cleans up a set of bars in staves after overdetection"""
+
+    if len(bars) <= 1:
+        return bars
+    elif len(bars) < 4:
+        l_diffs = []
+        for i in range(len(bars)):
+            l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
+        if l_diffs[0] < width:
+            return bars[1:]
+        else:
+            return [bars[0]] + cleanup_bars(bars[1:], width)
+    else:
+        l_diffs = []
+        for i in range(3):
+            l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
+        if l_diffs[1] < width:
+            if l_diffs[0] < l_diffs[2]:
+               new_bars = [bars[0]] + bars[2:] 
+            else:
+                new_bars = bars[0:1] + bars[3:]
+            return cleanup_bars(new_bars, width)
+
+        if l_diffs[0] < width:
+            new_bars = bars[0] + bars[2:]
+            return cleanup_bars(new_bars, width)
+        
+        return [bars[0]] + cleanup_bars(bars[1:], width)       
 
 if __name__ == '__main__':
     # test_staves()
