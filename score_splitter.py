@@ -352,6 +352,8 @@ class Score:
                 if clean_up:
                     width_magic_number = 10
                     self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
+                else:
+                    self._bars_start_end += bars_in_this_stave
             else: 
                 self._bars_start_end += [(0, start, end)]
                 self._bars_start_end += [(self._score.shape[0], start, end)]
@@ -505,15 +507,16 @@ def cleanup_bars(bars, width):
         l_diffs = []
         for i in range(3):
             l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
+            
+        if l_diffs[0] < width:
+            new_bars = [bars[0]] + bars[2:]
+            return cleanup_bars(new_bars, width)
+
         if l_diffs[1] < width:
             if l_diffs[0] < l_diffs[2]:
                new_bars = [bars[0]] + bars[2:] 
             else:
                 new_bars = bars[0:1] + bars[3:]
-            return cleanup_bars(new_bars, width)
-
-        if l_diffs[0] < width:
-            new_bars = bars[0] + bars[2:]
             return cleanup_bars(new_bars, width)
         
         return [bars[0]] + cleanup_bars(bars[1:], width)       
