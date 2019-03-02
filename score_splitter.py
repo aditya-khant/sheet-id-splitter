@@ -351,8 +351,8 @@ class Score:
                 
                 if clean_up:
                     width_magic_number = 10
-                   if type(bars_in_this_stave) == list)
-                    self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
+                    if type(bars_in_this_stave) == list):
+                        self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
                 else:
                     self._bars_start_end += bars_in_this_stave
             else: 
@@ -571,6 +571,7 @@ if __name__ == '__main__':
     # test_bar_waveforms()
     # test_pretty_print()
     # test_bar_print()
+    cnn_bar_img()
     test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
