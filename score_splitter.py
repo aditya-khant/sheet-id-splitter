@@ -351,8 +351,8 @@ class Score:
                 
                 if clean_up:
                     width_magic_number = 10
-                    if type(bars_in_this_stave) == list):
-                        self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
+                    
+                    self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
                 else:
                     self._bars_start_end += bars_in_this_stave
             else: 
