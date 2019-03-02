@@ -351,7 +351,7 @@ class Score:
                 
                 if clean_up:
                     width_magic_number = 10
-                    assert(type(bars_in_this_stave) == list)
+                   if type(bars_in_this_stave) == list)
                     self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
                 else:
                     self._bars_start_end += bars_in_this_stave
@@ -482,13 +482,16 @@ def test_bar_print(dataset='piano_dataset', output_dir='/home/ckurashige/bars_us
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for i, (label, image_file) in enumerate(data.index_images()):
-        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
-        name = path.split(label)[-1]
-        print('processing image {0} with name {1}'.format(i, name))
-        # add 'i' to disambiguate pieces
-        s = Score(image, output_dir + name + str(i))
-        s._print_with_bars(toggle=toggle)
+    for i, (label, image_file) in enumerate(data.index_images(dataset)):
+        if i < 5000:
+            image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+            name = path.split(label)[-1]
+            print('processing image {0} with name {1}'.format(i, name))
+            # add 'i' to disambiguate pieces
+            s = Score(image, output_dir + name + str(i))
+            s._print_with_bars(toggle=toggle)
+        else: 
+            break
 
 
 def cleanup_bars(bars, width):
@@ -543,6 +546,25 @@ def linear_cleanup_bars(bars, width):
         else:
             return [bars[0]] + linear_cleanup_bars(bars[1:], width)
     
+def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_cnn/', length = 10):
+    '''
+    Generates bar images images for the cnn
+    '''
+    for i, (label, image_file) in enumerate(zip(data.train_labels(), data.train_paths())):
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        name = path.split(label)[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, output_dir + name + str(i))
+        s._find_bars_using_peaks(clean_up=False)
+        img_color = cv.cvtColor(s._score ,cv.COLOR_GRAY2RGB)
+        print("Staves Length: {}".format(len(s._staves_start_end)))
+        print("Bars Length: {}".format(len(s._bars_start_end)))
+        for i, start, end in s._bars_start_end:
+            cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
+        for bar in s._bars_start_end:
+            cv.imwrite('{}_{}.png'.format(s._name, bar[0]), img_color[bar[1]:bar[2]][bar[0]-length:bar[0]+length])
+      
 
 if __name__ == '__main__':
     # test_staves()
