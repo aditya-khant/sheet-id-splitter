@@ -481,7 +481,7 @@ def test_bar_print(dataset='piano_dataset', output_dir='/home/ckurashige/bars_us
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+    for i, (label, image_file) in enumerate(data.index_images()):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
