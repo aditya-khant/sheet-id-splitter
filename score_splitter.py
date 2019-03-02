@@ -550,7 +550,7 @@ def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_c
     '''
     Generates bar images images for the cnn
     '''
-    for i, (label, image_file) in enumerate(zip(data.train_labels(), data.train_paths())):
+    for i, (label, image_file) in enumerate(zip(data.train_labels, data.train_paths)):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
