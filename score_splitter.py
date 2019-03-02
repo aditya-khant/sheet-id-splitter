@@ -546,7 +546,7 @@ def linear_cleanup_bars(bars, width):
         else:
             return [bars[0]] + linear_cleanup_bars(bars[1:], width)
     
-def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_cnn/', length = 10):
+def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_cnn/', length = 30):
     '''
     Generates bar images images for the cnn
     '''
