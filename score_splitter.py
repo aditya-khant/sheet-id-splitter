@@ -560,10 +560,11 @@ def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_c
         img_color = cv.cvtColor(s._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(s._staves_start_end)))
         print("Bars Length: {}".format(len(s._bars_start_end)))
-        for i, start, end in s._bars_start_end:
-            cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
-        for bar in s._bars_start_end:
-            cv.imwrite('{}_{}.png'.format(s._name, bar[0]), img_color[bar[1]:bar[2]][bar[0]-length:bar[0]+length])
+        # for i, start, end in s._bars_start_end:
+        #     cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
+        for ind, (bar_index, bar_start, bar_end) in enumerate(s._bars_start_end):
+            cv.imwrite('image_{0}_{1}_bar_{2}.png'.format(i, s._name, ind),
+            s._score[bar_start:bar_end][bar_index-length:bar_index+length])
       
 
 if __name__ == '__main__':
