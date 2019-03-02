@@ -551,6 +551,8 @@ def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_c
     Generates bar images images for the cnn
     '''
     for i, (label, image_file) in enumerate(zip(data.train_labels, data.train_paths)):
+        if i > 100:
+            return
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
@@ -563,8 +565,9 @@ def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_c
         # for i, start, end in s._bars_start_end:
         #     cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
         for ind, (bar_index, bar_start, bar_end) in enumerate(s._bars_start_end):
-            cv.imwrite(output_dir+'image_{0}_{1}_bar_{2}.png'.format(i, s._name, ind),
-            s._score[bar_start:bar_end][bar_index-length:bar_index+length])
+            location = output_dir+'image_{0}_{1}_bar_{2}.png'.format(i, s._name, ind)
+            print("Writing image to: {}".format(location))
+            cv.imwrite(location,s._score[bar_start:bar_end][bar_index-length:bar_index+length])
       
 
 if __name__ == '__main__':
