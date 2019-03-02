@@ -491,8 +491,30 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
 
 
 def cleanup_bars(bars, width):
-    """Cleans up a set of bars in staves after overdetection"""
-    
+    """Cleans up a set of bars in staves globally"""
+    if len(bars) <= 1:
+        return bars
+    else: 
+        l_diffs = []
+        for i in range(len(bars) - 1):
+            l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
+        if min(l_diffs) < width:
+            lowest_index = l_diffs.index(min(l_diffs))
+            if lowest_index == 0:
+                new_bars = [bars[0]] + bars[2:]
+            elif lowest_index == len(l_diffs) - 1:
+                new_bars = bars[0:-2] + [bars[-1]]
+            else: 
+                if l_diffs[lowest_index - 1] < l_diffs[lowest_index+1]:
+                    new_bars = bars[0:lowest_index] + bars[lowest_index+1:]
+                else: 
+                    new_bars = bars[0:lowest_index+1] + bars[lowest_index+2:]
+
+            return cleanup_bars(new_bars, width)
+
+
+def linear_cleanup_bars(bars, width):
+    """Cleans up a set of bars in staves after overdetection linearly"""  
     if len(bars) <= 1:
         return bars
     elif len(bars) < 4:
@@ -500,9 +522,9 @@ def cleanup_bars(bars, width):
         for i in range(len(bars) - 1):
             l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
         if l_diffs[0] < width:
-            return cleanup_bars(bars[1:], width)
+            return linear_cleanup_bars(bars[1:], width)
         else:
-            return [bars[0]] + cleanup_bars(bars[1:], width)
+            return [bars[0]] + linear_cleanup_bars(bars[1:], width)
     else:
         l_diffs = []
         for i in range(3):
@@ -510,15 +532,15 @@ def cleanup_bars(bars, width):
 
         if l_diffs[0] < width:
             new_bars = [bars[0]] + bars[2:]
-            return cleanup_bars(new_bars, width)
+            return linear_cleanup_bars(new_bars, width)
         elif l_diffs[1] < width:
             if l_diffs[0] < l_diffs[2]:
                 new_bars = [bars[0]] + bars[2:] 
             else:
                 new_bars = bars[0:2] + bars[3:]
-            return cleanup_bars(new_bars, width)
+            return linear_cleanup_bars(new_bars, width)
         else:
-            return [bars[0]] + cleanup_bars(bars[1:], width)
+            return [bars[0]] + linear_cleanup_bars(bars[1:], width)
     
 
 if __name__ == '__main__':
