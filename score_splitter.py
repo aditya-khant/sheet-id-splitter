@@ -497,7 +497,7 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
 
 def cleanup_bars(bars, width):
     """Cleans up a set of bars in staves globally"""
-    if len(bars) >= 1:
+    if len(bars) > 1:
         l_diffs = []
         for i in range(len(bars) - 1):
             l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
