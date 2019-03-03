@@ -215,6 +215,24 @@ class Score:
             return None
         return call_benchmark(images=images)
 
+    def _create_cnn_bars_waveforms(self):
+        if self._bars_start_end is None:
+            self._find_bars_using_peaks()
+        if self._bars_start_end == []:
+            return None
+        # downsample then convert to RGB
+        min_width = 100
+        min_height = 250
+        im_list = []
+        for i in range(len(self._bars_start_end) - 1):
+            cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
+            im_list.append(cropped_bar)
+        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
+                  for bar in im_list]
+        if images ==[]:
+            return None
+        return call_benchmark(images=images)
+
     def _find_voice_lines_page(self):
         """Finds voice lines on a page"""
         if self._voice_lines_by_page is None:
