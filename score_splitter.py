@@ -350,7 +350,7 @@ class Score:
                     bars_in_this_stave += [(i, start, end)]
                 
                 if clean_up:
-                    width_magic_number = 4.5
+                    width_magic_number = 10
                     cleaned_up_bars = cleanup_bars(bars_in_this_stave, self._score.shape[0] / width_magic_number )
                     if cleaned_up_bars is not None:
                         self._bars_start_end += cleaned_up_bars
