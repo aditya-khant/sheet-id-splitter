@@ -344,7 +344,7 @@ class Score:
                 #     a += 1
                 # else: 
                 filtered = [x[1] for x in maxima_list]
-                b+=1
+                filtered = sorted(filtered)
                 bars_in_this_stave = []
                 for i in filtered:
                     bars_in_this_stave += [(i, start, end)]
