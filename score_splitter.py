@@ -514,6 +514,8 @@ def cleanup_bars(bars, width):
                     new_bars = bars[0:lowest_index+1] + bars[lowest_index+2:]
 
             return cleanup_bars(new_bars, width)
+        else:
+            return bars
     else:
         return bars
 
