@@ -350,7 +350,7 @@ class Score:
                     bars_in_this_stave += [(i, start, end)]
                 
                 if clean_up:
-                    width_magic_number = 10
+                    width_magic_number = 100
                     cleaned_up_bars = cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
                     if cleaned_up_bars is not None:
                         self._bars_start_end += cleaned_up_bars
@@ -497,9 +497,7 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
 
 def cleanup_bars(bars, width):
     """Cleans up a set of bars in staves globally"""
-    if len(bars) <= 1:
-        return bars
-    else: 
+    if len(bars) >= 1:
         l_diffs = []
         for i in range(len(bars) - 1):
             l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
@@ -516,6 +514,8 @@ def cleanup_bars(bars, width):
                     new_bars = bars[0:lowest_index+1] + bars[lowest_index+2:]
 
             return cleanup_bars(new_bars, width)
+    else:
+        return bars
 
 
 def linear_cleanup_bars(bars, width):
