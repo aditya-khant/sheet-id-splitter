@@ -219,12 +219,12 @@ class Score:
         if self._bars_start_end is None:
             self._find_bars_using_peaks()
             if self._bars_start_end == []:
-                print("a None")
                 return None
         # downsample then convert to RGB
         min_width = 100
         min_height = 250
         im_list = []
+        print(self._bars_start_end)
         if len(self._bars_start_end) <= 1: # if there is one bar, split staff into 2 parts
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], self._bars_start_end[0][0]:self._score.shape[1]])
@@ -234,7 +234,6 @@ class Score:
         images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
                   for bar in im_list]
         if images ==[]:
-            print("b None")
             return None
         return call_benchmark(images=images)
 
