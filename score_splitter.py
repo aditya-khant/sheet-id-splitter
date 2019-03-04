@@ -351,7 +351,7 @@ class Score:
             maxima_list = sorted(maxima_list)
             
             switch_magic_number = 0.01
-            thresh_magic_number = 3
+            thresh_magic_number = 2
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
