@@ -633,7 +633,8 @@ if __name__ == '__main__':
     # test_bar_print()
     # cnn_bar_img()
     label, image = next(data.load_data(dataset="mini_dataset", grayscale=True))
-    create_bar_waveforms(image)
+    out = create_bar_waveforms(image)
+    print(out)
     # test_bar_print(output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
