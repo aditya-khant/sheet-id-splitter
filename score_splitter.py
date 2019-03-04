@@ -99,7 +99,10 @@ class Score:
             self._find_vertical_lines()
 
         # normalize and find the horizontal sum of the vertical lines
-        verts_norm = self._verticals // self._verticals.max()
+        if self._verticals.max() != 0:
+            verts_norm = self._verticals // self._verticals.max()
+        else: 
+            verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
@@ -623,7 +626,7 @@ def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bar_labe
         s._find_bars_using_peaks(clean_up=False, thresholder=False)
         for ind, stave, bars in enumerate(zip(s._staves,s._bars)):
             cv.imwrite(output_dir+"image_{0}_{1}_stave_{2}.png".format(i, name, ind),stave)
-            with open(output_dir+"image_{0}_{1}_stave_{2}.txt".format(i, name, ind), w) as f:
+            with open(output_dir+"image_{0}_{1}_stave_{2}.txt".format(i, name, ind), 'w') as f:
                 for bar in bars:
                     f.write("{}\n".format(bar))
         
@@ -638,7 +641,7 @@ if __name__ == '__main__':
     try:
         cnn_txt_staves()
     except:
-        print(Error)
+        print("Error")
     test_bar_print(dataset="piano_data",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
