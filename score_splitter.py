@@ -630,14 +630,15 @@ def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bar_labe
                 for bar in bars:
                     f.write("{}\n".format(bar))
         
-
+def get_ten_thousand_bars():
+    pass
 
 if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
     # test_bar_print()
-    # cnn_bar_img()
+    cnn_bar_img(length=50)
     cnn_txt_staves()
     test_bar_print(dataset="piano_data",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
