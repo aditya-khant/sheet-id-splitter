@@ -229,7 +229,7 @@ class Score:
             cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
             im_list.append(cropped_bar)
         images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
-                  for bar in im_list]
+                  for bar in im_list if len(bar) != 0]
         if images ==[]:
             return None
         return call_benchmark(images=images)
