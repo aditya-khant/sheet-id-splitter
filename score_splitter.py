@@ -215,6 +215,27 @@ class Score:
             return None
         return call_benchmark(images=images)
 
+    def _create_cnn_bars_waveforms(self):
+        if self._bars_start_end is None:
+            self._find_bars_using_peaks()
+        if self._bars_start_end == []:
+            return None
+        # downsample then convert to RGB
+        min_width = 100
+        min_height = 250
+        im_list = []
+        if len(len(self._bars_start_end)) == 1: # if there is one bar, split staff into 2 parts
+            im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
+            im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], self._bars_start_end[0][0]:self._score.shape[1]])
+        for i in range(len(self._bars_start_end) - 1):
+            cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
+            im_list.append(cropped_bar)
+        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
+                  for bar in im_list]
+        if images ==[]:
+            return None
+        return call_benchmark(images=images)
+
     def _find_voice_lines_page(self):
         """Finds voice lines on a page"""
         if self._voice_lines_by_page is None:
@@ -333,26 +354,25 @@ class Score:
             maxima_list = sorted(maxima_list)
             
             switch_magic_number = 0.01
-            thresh_magic_number = 3
+            thresh_magic_number = 2
             if maxima_list != []:
-                # minimum = maxima_list[0][0]
-                # maximum = maxima_list[-1][0] 
-                # if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
-                #     threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
-                #     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                #     filtered = sorted(filtered)
-                #     a += 1
-                # else: 
-                filtered = [x[1] for x in maxima_list]
-                b+=1
+                minimum = maxima_list[0][0]
+                maximum = maxima_list[-1][0] 
+                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
+                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
+                    filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                else: 
+                    filtered = [x[1] for x in maxima_list]
+                filtered = sorted(filtered)
                 bars_in_this_stave = []
                 for i in filtered:
                     bars_in_this_stave += [(i, start, end)]
                 
                 if clean_up:
                     width_magic_number = 10
-                    assert(type(bars_in_this_stave) == list)
-                    self._bars_start_end += cleanup_bars(bars_in_this_stave, self._score.shape[0] // width_magic_number )
+                    cleaned_up_bars = cleanup_bars(bars_in_this_stave, self._score.shape[0] / width_magic_number )
+                    if cleaned_up_bars is not None:
+                        self._bars_start_end += cleaned_up_bars
                 else:
                     self._bars_start_end += bars_in_this_stave
             else: 
@@ -477,25 +497,26 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
-def test_bar_print(dataset='piano_dataset', output_dir='/home/ckurashige/bars_using_staves/', toggle="staves"):
+def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/', toggle="staves"):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for i, (label, image_file) in enumerate(data.index_images()):
-        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
-        name = path.split(label)[-1]
-        print('processing image {0} with name {1}'.format(i, name))
-        # add 'i' to disambiguate pieces
-        s = Score(image, output_dir + name + str(i))
-        s._print_with_bars(toggle=toggle)
+    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+        if i < 5000:
+            image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+            name = path.split(label)[-1]
+            print('processing image {0} with name {1}'.format(i, name))
+            # add 'i' to disambiguate pieces
+            s = Score(image, output_dir + name + str(i))
+            s._print_with_bars(toggle=toggle)
+        else: 
+            break
 
 
 def cleanup_bars(bars, width):
     """Cleans up a set of bars in staves globally"""
-    if len(bars) <= 1:
-        return bars
-    else: 
+    if len(bars) > 1:
         l_diffs = []
         for i in range(len(bars) - 1):
             l_diffs.append(abs(bars[i][0] - bars[i+1][0]))
@@ -512,6 +533,10 @@ def cleanup_bars(bars, width):
                     new_bars = bars[0:lowest_index+1] + bars[lowest_index+2:]
 
             return cleanup_bars(new_bars, width)
+        else:
+            return bars
+    else:
+        return bars
 
 
 def linear_cleanup_bars(bars, width):
@@ -543,13 +568,42 @@ def linear_cleanup_bars(bars, width):
         else:
             return [bars[0]] + linear_cleanup_bars(bars[1:], width)
     
+def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_cnn/', length = 30):
+    '''
+    Generates bar images images for the cnn
+    '''
+    for i, (label, image_file) in enumerate(zip(data.train_labels, data.train_paths)):
+        if i > 100:
+            return
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        name = path.split(label)[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, name)
+        s._find_bars_using_peaks(clean_up=False)
+        img_color = cv.cvtColor(s._score ,cv.COLOR_GRAY2RGB)
+        print("Staves Length: {}".format(len(s._staves_start_end)))
+        print("Bars Length: {}".format(len(s._bars_start_end)))
+        # for i, start, end in s._bars_start_end:
+        #     cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
+        for ind, (bar_index, bar_start, bar_end) in enumerate(s._bars_start_end):
+            location = output_dir+'image_{0}_{1}_bar_{2}.png'.format(i, s._name, ind)
+            
+            cropped_bar = s._score[bar_start:bar_end, bar_index-length:bar_index+length]
+            if cropped_bar.size == 0:
+                print("Empty bar generated for {0} at bar {1}".format(s._name, ind))
+            else:
+                print("Writing image to: {}".format(location))
+                cv.imwrite(location, cropped_bar)
+      
 
 if __name__ == '__main__':
     # test_staves()
     # test_bar_waveforms()
     # test_pretty_print()
     # test_bar_print()
-    test_bar_print(output_dir='/home/ckurashige/bars_using_peaks/', toggle='peaks')
+    # cnn_bar_img()
+    test_bar_print(output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
 
