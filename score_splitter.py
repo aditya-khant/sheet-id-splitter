@@ -599,7 +599,7 @@ def cnn_bar_img(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cn
         print('processing image {0} with name {1}'.format(i, name))
         # add 'i' to disambiguate pieces
         s = Score(image, name)
-        s._find_bars_using_peaks(clean_up=False)
+        s._find_bars_using_peaks(clean_up=False, thresholder=False)
         img_color = cv.cvtColor(s._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(s._staves_start_end)))
         print("Bars Length: {}".format(len(s._bars_start_end)))
