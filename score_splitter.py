@@ -14,6 +14,7 @@ from score_splitter_cleanup import find_horizontal_lines
 
 # requires score_retrieval
 import score_retrieval.data as data
+from score_retrieval import load_data
 # requires cnnpytorch
 from benchmarks import call_benchmark
 
@@ -632,7 +633,7 @@ if __name__ == '__main__':
     # test_pretty_print()
     # test_bar_print()
     # cnn_bar_img()
-    label, image = next(score_retrieval.load_data(dataset="mini_dataset", grayscale=True))
+    label, image = next(load_data(dataset="mini_dataset", grayscale=True))
     create_bar_waveforms(image)
     # test_bar_print(output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
