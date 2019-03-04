@@ -6,9 +6,12 @@ import shutil
 import sys
 
 # GUI
-import PIL.Image, PIL.ImageTk
+import PIL.Image, PIL.ImageDraw, PIL.ImageTk
 from tkinter import *
 from tkinter import ttk
+
+# number of pixels to the left and right of the supposed bar
+BAR_CONTEXT = 10
 
 # Getting input
 parser = argparse.ArgumentParser(description='A tool for labeling images detected as bars as correct or incorrect.')
@@ -32,6 +35,41 @@ args.incorrect_dir += '/' if args.incorrect_dir[-1] != '/' else ''
 # Make the output directories if they don't exist already
 pathlib.Path(args.correct_dir).mkdir(parents=True, exist_ok=True)
 pathlib.Path(args.incorrect_dir).mkdir(parents=True, exist_ok=True)
+
+# TODO: Get this cropping
+# # Parse the input files
+# def get_bars(staff_image_filename, bar_context = 10):
+#     '''
+#     Helper function to return an iterator that gives tuples of (staff_image,
+#     bar_image), where the former is in a PIL ImageTk format (a PhotoImage) and
+#     the latter is in a PIL Image format.
+
+#     Expects that the directory has files that look like
+#         staff_image.png -- The image of staff.
+#         staff_image.txt -- A file where every line denotes where a bar is in staff_image.png.
+
+#     '''
+#     extension_len = len(staff_image_filename.split('.')[-1])
+#     bar_indices_filename = staff_image_filename[:-extension_len] + '.txt'
+#     with open(bar_indices_filename) as bar_indices_file:
+#         bar_indices = (int(line.strip()) for line in bar_indices_file)
+#     im = PIL.Image.open(staff_image_filename)
+#     im_width, im_height = im.size
+#         for bar_index in bar_indices:
+#             start_col = max(bar_index - bar_context, 0)
+#             end_col = min(bar_index + bar_context, im_width - 1)
+#             start_row = 0
+#             end_row = im_height - 1
+#             bar_drawn = im.copy()
+#             draw = PIL.ImageDraw.Draw(bar_drawn)
+#             # left border
+#             draw.line((start_col, start_row, start_col, end_row), fill=(0, 255, 0), width=3)
+#             # centerline
+#             draw.line((bar_index, start_row, bar_index, end_row), fill=(255, 0, 0), width=1)
+#             # right border
+#             draw.line((end_col, start_row, end_col, end_row), fill=(0, 255, 0), width=3)
+#             cropped_bar = im.crop(start_col, start_row, end_col, end_row)
+#             yield PIL.ImageTk.PhotoImage(bar_drawn), cropped_bar
 
 filenames = glob.iglob(args.directory + '*.png')
 
@@ -84,6 +122,10 @@ def change_image():
         sys.exit(0)
     print('loading image {}'.format(next_image_file))
     im = PIL.Image.open(next_image_file)
+    im_height, im_width = im.size
+    drawer = PIL.ImageDraw.Draw(im)
+    # draw the centerline
+    drawer.line((im_width // 2, 0, im_width // 2, im_height - 1), fill=(255, 0, 0, 255), width=1)
     ph = PIL.ImageTk.PhotoImage(im)
     image_label.configure(image=ph)
     # keep a reference to the photo
