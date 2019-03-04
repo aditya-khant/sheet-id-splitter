@@ -14,7 +14,7 @@ from score_splitter_cleanup import find_horizontal_lines
 
 # requires score_retrieval
 import score_retrieval.data as data
-from score_retrieval import load_data
+import score_retrieval.load_data as load_data
 # requires cnnpytorch
 from benchmarks import call_benchmark
 
