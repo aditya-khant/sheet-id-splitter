@@ -216,15 +216,12 @@ class Score:
         return call_benchmark(images=images)
 
     def _create_cnn_bars_waveforms(self):
-        if self._bars_start_end is None:
+        if self._bars_start_end == []:
             self._find_bars_using_peaks()
-            if self._bars_start_end == []:
-                return None
         # downsample then convert to RGB
         min_width = 100
         min_height = 250
         im_list = []
-        print(self._bars_start_end)
         if len(self._bars_start_end) <= 1: # if there is one bar, split staff into 2 parts
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], self._bars_start_end[0][0]:self._score.shape[1]])
