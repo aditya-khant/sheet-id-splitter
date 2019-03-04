@@ -624,7 +624,7 @@ def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bar_labe
         # add 'i' to disambiguate pieces
         s = Score(image, name)
         s._find_bars_using_peaks(clean_up=False, thresholder=False)
-        for ind, stave, bars in enumerate(zip(s._staves,s._bars)):
+        for ind, (stave, bars) in enumerate(zip(s._staves,s._bars)):
             cv.imwrite(output_dir+"image_{0}_{1}_stave_{2}.png".format(i, name, ind),stave)
             with open(output_dir+"image_{0}_{1}_stave_{2}.txt".format(i, name, ind), 'w') as f:
                 for bar in bars:
