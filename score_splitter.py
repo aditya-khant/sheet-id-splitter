@@ -224,7 +224,7 @@ class Score:
         min_width = 100
         min_height = 250
         im_list = []
-        if len(len(self._bars_start_end)) == 1: # if there is one bar, split staff into 2 parts
+        if len(len(self._bars_start_end)) <= 1: # if there is one bar, split staff into 2 parts
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], self._bars_start_end[0][0]:self._score.shape[1]])
         for i in range(len(self._bars_start_end) - 1):
@@ -338,13 +338,12 @@ class Score:
                             self._bars_start_end += [(i, start, end)]
 
 
-    def _find_bars_using_peaks(self, clean_up = True):
+    def _find_bars_using_peaks(self, clean_up = True, thresholder = True):
         """Uses peaks and min maxing to find bars"""
         if self._staves is None:
             self._find_staves()
         self._bars_start_end = []
-        a = 0
-        b = 0
+        self._bars = []
         
         for start, end in self._staves_start_end:
             one_staff = list(cut_array(self._noisy_verticals, [(start, end)]))[0]
@@ -355,18 +354,23 @@ class Score:
             
             switch_magic_number = 0.01
             thresh_magic_number = 2
+            bar_list = []
             if maxima_list != []:
                 minimum = maxima_list[0][0]
                 maximum = maxima_list[-1][0] 
-                if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
-                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
-                    filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                else: 
+                if thresholder:
+                    if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
+                        threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
+                        filtered = [x[1] for x in maxima_list if x[0] > threshold ]
+                    else: 
+                        filtered = [x[1] for x in maxima_list]
+                else:
                     filtered = [x[1] for x in maxima_list]
                 filtered = sorted(filtered)
                 bars_in_this_stave = []
                 for i in filtered:
                     bars_in_this_stave += [(i, start, end)]
+                    bar_list.append(i)
                 
                 if clean_up:
                     width_magic_number = 10
@@ -378,6 +382,9 @@ class Score:
             else: 
                 self._bars_start_end += [(0, start, end)]
                 self._bars_start_end += [(self._score.shape[0], start, end)]
+                bar_list.append(0)
+                bar_list.append(self._score.shape[0])
+            self._bars.append(bar_list)
 
 
     def _find_bars_by_intersection(self):
@@ -595,7 +602,19 @@ def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_c
             else:
                 print("Writing image to: {}".format(location))
                 cv.imwrite(location, cropped_bar)
-      
+
+# def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cnn/'):
+#     """CNN pretraining thing"""
+#    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+#         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+#         name = path.split(label)[-1]
+#         print('processing image {0} with name {1}'.format(i, name))
+#         # add 'i' to disambiguate pieces
+#         s = Score(image, output_dir + name + str(i))
+#         s._find_bars_using_peaks(clean_up=False, thresholder=False)
+#         for i, stave, bars in enumerate(zip())
+        
+
 
 if __name__ == '__main__':
     # test_staves()
