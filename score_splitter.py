@@ -642,7 +642,7 @@ def get_ten_thousand_bars(dataset="mini_dataset",output_dir='/home/ckurashige/te
         for x in range(len(s._bars_start_end) - 1):
             cropped_bar = s._score[s._bars_start_end[x][1]:s._bars_start_end[x][2], s._bars_start_end[x][0]:s._bars_start_end[x+1][0]]
             if cropped_bar.size != 0:
-                cv.imwrite(output_dir+"image_{0}_{1}_bar_{2}".format(i, s._name, x),cropped_bar)
+                cv.imwrite(output_dir+"image_{0}_{1}_bar_{2}.png".format(i, s._name, x) ,cropped_bar)
                 
         
 if __name__ == '__main__':
