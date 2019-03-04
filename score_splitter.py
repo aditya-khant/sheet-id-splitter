@@ -225,7 +225,7 @@ class Score:
         min_width = 100
         min_height = 250
         im_list = []
-        if len(len(self._bars_start_end)) <= 1: # if there is one bar, split staff into 2 parts
+        if len(self._bars_start_end) <= 1: # if there is one bar, split staff into 2 parts
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], self._bars_start_end[0][0]:self._score.shape[1]])
         for i in range(len(self._bars_start_end) - 1):
