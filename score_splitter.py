@@ -612,17 +612,17 @@ def cnn_bar_img(dataset='piano_dataset', output_dir='/home/ckurashige/bars_for_c
                 print("Writing image to: {}".format(location))
                 cv.imwrite(location, cropped_bar)
 
-def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cnn/'):
-    """CNN pretraining thing"""
-    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
-        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
-        name = path.split(label)[-1]
-        print('processing image {0} with name {1}'.format(i, name))
-        # add 'i' to disambiguate pieces
-        s = Score(image, output_dir + name + str(i))
-        s._find_bars_using_peaks(clean_up=False, thresholder=False)
-        for ind, stave, bars in enumerate(zip(s._staves,s._bars)):
-            cv.imwrite("image_{0}_{1}_stave_{2}".format(i),stave)
+# def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cnn/'):
+#     """CNN pretraining thing"""
+#     for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+#         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+#         name = path.split(label)[-1]
+#         print('processing image {0} with name {1}'.format(i, name))
+#         # add 'i' to disambiguate pieces
+#         s = Score(image, output_dir + name + str(i))
+#         s._find_bars_using_peaks(clean_up=False, thresholder=False)
+#         for ind, stave, bars in enumerate(zip(s._staves,s._bars)):
+#             cv.imwrite(output_dir"image_{0}_{1}_stave_{2}".format(i, name, ),stave)
         
 
 
@@ -632,7 +632,9 @@ if __name__ == '__main__':
     # test_pretty_print()
     # test_bar_print()
     # cnn_bar_img()
-    test_bar_print(output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
+    label, image = next(score_retrieval.load_data(dataset="mini_dataset", grayscale=True))
+    create_bar_waveforms(image)
+    # test_bar_print(output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
 
