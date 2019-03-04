@@ -1,9 +1,11 @@
+# misc helpers
 import argparse
 import glob
 import pathlib
 import shutil
 import sys
 
+# GUI
 import PIL.Image, PIL.ImageTk
 from tkinter import *
 from tkinter import ttk
@@ -22,7 +24,7 @@ print('directory to label: {}\ndirectory to place correct images: {}\ndirectory\
 to place incorrect images: {}'.format(args.directory, args.correct_dir,
                                       args.incorrect_dir))
 
-# hack to make sure glob works
+# hack to make sure the glob works
 args.directory += '/' if args.directory[-1] != '/' else ''
 args.correct_dir += '/' if args.correct_dir[-1] != '/' else ''
 args.incorrect_dir += '/' if args.incorrect_dir[-1] != '/' else ''
@@ -34,6 +36,7 @@ pathlib.Path(args.incorrect_dir).mkdir(parents=True, exist_ok=True)
 filenames = glob.iglob(args.directory + '*.png')
 
 # GUI initialization
+# Pretty much taken entirely from the ttk docs
 root = Tk()
 root.title('Bar labeler')
 mainframe = ttk.Frame(root, padding="10 10 10 10")
@@ -51,7 +54,6 @@ image_label.grid(columnspan=2, row=2, sticky=(N, E, W))
 image_file = StringVar()
 bar_file = ttk.Label(mainframe, textvariable=image_file)
 bar_file.grid(columnspan=2, row=4, sticky=(S, E, W))
-
 
 # GUI functions
 def correct_image(*_):
@@ -98,4 +100,5 @@ change_image()
 
 root.bind('b', correct_image)
 root.bind('x', incorrect_image)
+# start the GUI
 root.mainloop()
