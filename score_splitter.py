@@ -591,7 +591,7 @@ def cnn_bar_img(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cn
     '''
     Generates bar images images for the cnn
     '''
-    for i, (label, image_file) in enumerate(zip(data.train_labels, data.train_paths)):
+    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
         if i > 100:
             return
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
