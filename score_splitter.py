@@ -638,10 +638,7 @@ if __name__ == '__main__':
     # test_pretty_print()
     # test_bar_print()
     # cnn_bar_img()
-    try:
-        cnn_txt_staves()
-    except:
-        print("Error")
+    cnn_txt_staves()
     test_bar_print(dataset="piano_data",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
