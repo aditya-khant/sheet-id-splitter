@@ -218,9 +218,9 @@ class Score:
     def _create_cnn_bars_waveforms(self):
         if self._bars_start_end is None:
             self._find_bars_using_peaks()
-        if self._bars_start_end == []:
-            print("a None")
-            return None
+            if self._bars_start_end == []:
+                print("a None")
+                return None
         # downsample then convert to RGB
         min_width = 100
         min_height = 250
