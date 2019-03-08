@@ -29,7 +29,7 @@ class Score:
         # binary conversion
         print(score.shape)
         gray = cv.bitwise_not(score)
-        bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2)
+        bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 0)
         self._score_gray = gray
         self._score     = score
         self._score_bw  = bw
