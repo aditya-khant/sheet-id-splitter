@@ -29,7 +29,7 @@ class Score:
         # binary conversion
         print(score.shape)
         gray = cv.bitwise_not(score)
-        bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 0)
+        bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2)
         self._score_gray = gray
         self._score     = score
         self._score_bw  = bw
@@ -63,7 +63,7 @@ class Score:
         # TODO: figure out how to find the optimal value
         vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
-        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
+        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (2, vertical_size))
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
