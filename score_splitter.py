@@ -104,8 +104,8 @@ class Score:
         else: 
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
-        min_sum = horiz_sum_vert.min()
-        max_sum = horiz_sum_vert.max()
+        min_sum = horiz_sum_verts.min()
+        max_sum = horiz_sum_verts.max()
         thresh = (min_sum + max_sum) / 2
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
