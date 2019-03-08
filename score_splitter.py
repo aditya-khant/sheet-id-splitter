@@ -650,7 +650,7 @@ if __name__ == '__main__':
     get_ten_thousand_bars()
     # cnn_bar_img(length=50)
     # cnn_txt_staves()
-    # test_bar_print(dataset="mini_dataset",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
+    test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
 
