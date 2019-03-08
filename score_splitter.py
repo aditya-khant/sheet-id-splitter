@@ -104,12 +104,15 @@ class Score:
         else: 
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
+        min_sum = horiz_sum_vert.min()
+        max_sum = horiz_sum_vert.max()
+        thresh = (min_sum + max_sum) / 2
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
-            staff_split_indices = list(split_indices_average(horiz_sum_verts))
+            staff_split_indices = list(split_indices_average(horiz_sum_verts, comparator = (lambda x: x < thresh)))
         elif split_type == 'strict':
-            staff_split_indices = list(split_indices(horiz_sum_verts))
+            staff_split_indices = list(split_indices(horiz_sum_verts, comparator = (lambda x: x < thresh)))
         else:
             raise Exception('Invalid split_type given')
         
@@ -647,10 +650,9 @@ def get_ten_thousand_bars(dataset="mini_dataset",output_dir='/home/ckurashige/te
         
 if __name__ == '__main__':
 
-    get_ten_thousand_bars()
+    # get_ten_thousand_bars()
     # cnn_bar_img(length=50)
     # cnn_txt_staves()
     test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
-
