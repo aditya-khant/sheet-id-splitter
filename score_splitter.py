@@ -63,7 +63,7 @@ class Score:
         # TODO: figure out how to find the optimal value
         vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
-        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
+        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (2, vertical_size))
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
@@ -104,6 +104,7 @@ class Score:
         else: 
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
+        
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
@@ -139,6 +140,15 @@ class Score:
                 cv.line(img_color, (0, start), (self._score.shape[1], start), (255,0,0), 5 )
                 cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
         
+        if len(staff_split_indices) == 0:
+            min_sum = horiz_sum_verts.min()
+            max_sum = horiz_sum_verts.max()
+            thresh = (min_sum + max_sum) / 2
+            if split_type == 'average':
+                staff_split_indices = list(split_indices_average(horiz_sum_verts, comparator = (lambda x: x < thresh)))
+            elif split_type == 'strict':
+                staff_split_indices = list(split_indices(horiz_sum_verts, comparator = (lambda x: x < thresh)))
+
         if len(staff_split_indices) == 0:
             self._staves_start_end = [(0, self._score.shape[1])]
             self._staves.append(self._score)
@@ -647,10 +657,9 @@ def get_ten_thousand_bars(dataset="mini_dataset",output_dir='/home/ckurashige/te
         
 if __name__ == '__main__':
 
-    get_ten_thousand_bars()
+    # get_ten_thousand_bars()
     # cnn_bar_img(length=50)
     # cnn_txt_staves()
-    # test_bar_print(dataset="mini_dataset",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
+    test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
-
