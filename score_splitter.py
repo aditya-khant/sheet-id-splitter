@@ -67,7 +67,7 @@ class Score:
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
-        
+
         vertical_size = rows // 40
         # Create structure element for extracting vertical lines through morphology operations
         vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
@@ -101,7 +101,7 @@ class Score:
         # normalize and find the horizontal sum of the vertical lines
         if self._verticals.max() != 0:
             verts_norm = self._verticals // self._verticals.max()
-        else: 
+        else:
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
         indices = find_peaks(-1*horiz_sum_verts)[0]
@@ -119,8 +119,8 @@ class Score:
             staff_split_indices = list(split_indices(horiz_sum_verts, lambda x: x <= avg_min))
         else:
             raise Exception('Invalid split_type given')
-        
-        
+
+
 
 
         # if told to, plot the source
@@ -145,6 +145,18 @@ class Score:
             if imwrite:
                 cv.line(img_color, (0, start), (self._score.shape[1], start), (255,0,0), 5 )
                 cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
+<<<<<<< HEAD
+=======
+
+        if len(staff_split_indices) == 0:
+            min_sum = horiz_sum_verts.min()
+            max_sum = horiz_sum_verts.max()
+            thresh = (min_sum + max_sum) / 2
+            if split_type == 'average':
+                staff_split_indices = list(split_indices_average(horiz_sum_verts, comparator = (lambda x: x < thresh)))
+            elif split_type == 'strict':
+                staff_split_indices = list(split_indices(horiz_sum_verts, comparator = (lambda x: x < thresh)))
+>>>>>>> 296053274d73a2357196ef6a84713fe25faba595
 
         if len(staff_split_indices) == 0:
             self._staves_start_end = [(0, self._score.shape[1])]
@@ -184,9 +196,7 @@ class Score:
         """Returns vertical images"""
         if self._verticals is None:
             self._find_vertical_lines()
-        min_width = 300
-        min_height = 390
-        image = downsample_image(cv.cvtColor(self._verticals,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
+        image = downsample_image(cv.cvtColor(self._verticals,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
         if image ==[]:
             return None
         return call_benchmark(images=[image])
@@ -218,9 +228,7 @@ class Score:
             return None
         # downsample then convert to RGB
         shape_min_width, shape_min_height = min(staff.shape for staff in self._staves)
-        min_width = 1024
-        min_height = 1024
-        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
+        images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
                   for staff in self._staves]
         if images ==[]:
             return None
@@ -230,8 +238,6 @@ class Score:
         if self._bars_start_end == []:
             self._find_bars_using_peaks()
         # downsample then convert to RGB
-        min_width = 1024
-        min_height = 1024
         im_list = []
         if len(self._bars_start_end) <= 1: # if there is one bar, split staff into 2 parts
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
@@ -240,7 +246,7 @@ class Score:
             cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
             if cropped_bar.size != 0:
                 im_list.append(cropped_bar)
-        images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
+        images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
                   for bar in im_list ]
         if images ==[]:
             return None
@@ -354,25 +360,25 @@ class Score:
             self._find_staves()
         self._bars_start_end = []
         self._bars = []
-        
+
         for start, end in self._staves_start_end:
             one_staff = list(cut_array(self._noisy_verticals, [(start, end)]))[0]
             sum_array = one_staff.sum(axis=0)
             maxima = find_peaks(sum_array)
             maxima_list = [(sum_array[i], i) for i in maxima[0]]
             maxima_list = sorted(maxima_list)
-            
+
             switch_magic_number = 0.01
             thresh_magic_number = 2
             bar_list = []
             if maxima_list != []:
                 minimum = maxima_list[0][0]
-                maximum = maxima_list[-1][0] 
+                maximum = maxima_list[-1][0]
                 if thresholder:
                     if abs(maximum - minimum) / self._noisy_verticals.shape[1] > switch_magic_number:
                         threshold = (maxima_list[0][0] + maxima_list[-1][0]) / thresh_magic_number   #minMax Threshold
                         filtered = [x[1] for x in maxima_list if x[0] > threshold ]
-                    else: 
+                    else:
                         filtered = [x[1] for x in maxima_list]
                 else:
                     filtered = [x[1] for x in maxima_list]
@@ -381,7 +387,7 @@ class Score:
                 for i in filtered:
                     bars_in_this_stave += [(i, start, end)]
                     bar_list.append(i)
-                
+
                 if clean_up:
                     width_magic_number = 10
                     cleaned_up_bars = cleanup_bars(bars_in_this_stave, self._score.shape[0] / width_magic_number )
@@ -389,7 +395,7 @@ class Score:
                         self._bars_start_end += cleaned_up_bars
                 else:
                     self._bars_start_end += bars_in_this_stave
-            else: 
+            else:
                 self._bars_start_end += [(0, start, end)]
                 self._bars_start_end += [(self._score.shape[0], start, end)]
                 bar_list.append(0)
@@ -408,9 +414,9 @@ class Score:
             bar_lines = find_peaks(sum_staff)
             bars_for_staff = [(i,start, end) for i in bar_lines[0]]
             self._bars_start_end += bars_for_staff
-       
 
-def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width = 500, height = 300 ):
+
+def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width=1024, height=1024):
     '''
     Downsamples 'image' by a ratio 'rate' or by a mentioned size ('width' and 'height')
     '''
@@ -464,7 +470,7 @@ def test_staves(dataset='mini_dataset', output_dir='./test_staves/'):
         s._find_staves(imwrite= True)
         create_waveforms(image)
 
-def create_waveforms(image, name="", down_sample_rate=0.5):
+def create_waveforms(image, name=""):
     '''
     Input: Image
     Output: Array of cnn staff waveforms
@@ -475,7 +481,7 @@ def create_waveforms(image, name="", down_sample_rate=0.5):
     # s._create_bar_waveforms()
     # return s._bar_waveform
 
-def create_bar_waveforms(image, name="", down_sample_rate=0.5):
+def create_bar_waveforms(image, name=""):
     '''
     Input: Image
     Output: Array of cnn staff waveforms
@@ -536,7 +542,7 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
             # add 'i' to disambiguate pieces
             s = Score(image, output_dir + name + str(i))
             s._print_with_bars(toggle=toggle)
-        else: 
+        else:
             break
 
 
@@ -552,10 +558,10 @@ def cleanup_bars(bars, width):
                 new_bars = [bars[0]] + bars[2:]
             elif lowest_index == len(l_diffs) - 1:
                 new_bars = bars[0:-2] + [bars[-1]]
-            else: 
+            else:
                 if l_diffs[lowest_index - 1] < l_diffs[lowest_index+1]:
                     new_bars = bars[0:lowest_index] + bars[lowest_index+1:]
-                else: 
+                else:
                     new_bars = bars[0:lowest_index+1] + bars[lowest_index+2:]
 
             return cleanup_bars(new_bars, width)
@@ -566,7 +572,7 @@ def cleanup_bars(bars, width):
 
 
 def linear_cleanup_bars(bars, width):
-    """Cleans up a set of bars in staves after overdetection linearly"""  
+    """Cleans up a set of bars in staves after overdetection linearly"""
     if len(bars) <= 1:
         return bars
     elif len(bars) < 4:
@@ -587,13 +593,13 @@ def linear_cleanup_bars(bars, width):
             return linear_cleanup_bars(new_bars, width)
         elif l_diffs[1] < width:
             if l_diffs[0] < l_diffs[2]:
-                new_bars = [bars[0]] + bars[2:] 
+                new_bars = [bars[0]] + bars[2:]
             else:
                 new_bars = bars[0:2] + bars[3:]
             return linear_cleanup_bars(new_bars, width)
         else:
             return [bars[0]] + linear_cleanup_bars(bars[1:], width)
-    
+
 def cnn_bar_img(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cnn/', length = 30):
     '''
     Generates bar images images for the cnn
@@ -614,7 +620,7 @@ def cnn_bar_img(dataset='mini_dataset', output_dir='/home/ckurashige/bars_for_cn
         #     cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
         for ind, (bar_index, bar_start, bar_end) in enumerate(s._bars_start_end):
             location = output_dir+'image_{0}_{1}_bar_{2}.png'.format(i, s._name, ind)
-            
+
             cropped_bar = s._score[bar_start:bar_end, bar_index-length:bar_index+length]
             if cropped_bar.size == 0:
                 print("Empty bar generated for {0} at bar {1}".format(s._name, ind))
@@ -636,7 +642,7 @@ def cnn_txt_staves(dataset='mini_dataset', output_dir='/home/ckurashige/bar_labe
             with open(output_dir+"image_{0}_{1}_stave_{2}.txt".format(i, name, ind), 'w') as f:
                 for bar in bars:
                     f.write("{}\n".format(bar))
-        
+
 def get_ten_thousand_bars(dataset="mini_dataset",output_dir='/home/ckurashige/ten_thousand_bars/'):
     for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
@@ -645,13 +651,13 @@ def get_ten_thousand_bars(dataset="mini_dataset",output_dir='/home/ckurashige/te
         # add 'i' to disambiguate pieces
         s = Score(image, name)
         s._find_bars_using_peaks()
-        
+
         for x in range(len(s._bars_start_end) - 1):
             cropped_bar = s._score[s._bars_start_end[x][1]:s._bars_start_end[x][2], s._bars_start_end[x][0]:s._bars_start_end[x+1][0]]
             if cropped_bar.size != 0:
                 cv.imwrite(output_dir+"image_{0}_{1}_bar_{2}.png".format(i, s._name, x) ,cropped_bar)
-                
-        
+
+
 if __name__ == '__main__':
 
     # get_ten_thousand_bars()
@@ -659,4 +665,4 @@ if __name__ == '__main__':
     # cnn_txt_staves()
     test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_avg_min/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
-    
+
