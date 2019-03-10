@@ -12,6 +12,8 @@ from tkinter import ttk
 
 # number of pixels to the left and right of the supposed bar
 BAR_CONTEXT = 10
+# number of pixels to draw the supposed barline
+NUM_PIXELS = 14
 
 # Getting input
 parser = argparse.ArgumentParser(description='A tool for labeling images detected as bars as correct or incorrect.')
@@ -87,7 +89,7 @@ description = ttk.Label(mainframe, text='Press "b" to label as a bar, "x" to lab
 description.grid(columnspan=2,row=1, sticky=(N,E,W))
 # create the image label
 image_label = ttk.Label(mainframe, image=None)
-image_label.grid(columnspan=2, row=2, sticky=(N, E, W))
+image_label.grid(columnspan=2, row=2, sticky=(N, E, W, S))
 # displays the location where the last bar file was placed
 image_file = StringVar()
 bar_file = ttk.Label(mainframe, textvariable=image_file)
@@ -121,11 +123,20 @@ def change_image():
         # We're done if there are no more files
         sys.exit(0)
     print('loading image {}'.format(next_image_file))
-    im = PIL.Image.open(next_image_file)
-    im_height, im_width = im.size
-    drawer = PIL.ImageDraw.Draw(im)
-    # draw the centerline
-    drawer.line((im_width // 2, 0, im_width // 2, im_height - 1), fill=(255, 0, 0, 255), width=1)
+    # Open and convert to RGBA
+    im = PIL.Image.open(next_image_file).convert('RGB')
+    im_width, im_height= im.size
+    drawer = PIL.ImageDraw.Draw(im, mode='RGB')
+    # draw the centerline at the top
+    half_width = im_width // 2
+    half_len   = NUM_PIXELS // 2
+    # top triangle
+    drawer.polygon([(half_width - half_len, im_height - 1), (half_width + half_len, im_height - 1), (half_width, im_height - (1 + NUM_PIXELS))], fill='red')
+    drawer.polygon([(half_width - half_len, 0), (half_width + half_len, 0), (half_width, NUM_PIXELS - 1)], fill='red')
+    del drawer
+    # drawer.line((im_width // 2, im_height - 1, im_width // 2, im_height - (1 + NUM_PIXELS)), fill='red', width=1)
+    # draw the centerline at the bottom
+    # drawer.line((im_width // 2, NUM_PIXELS - 1, im_width // 2, 0), fill='red', width=1)
     ph = PIL.ImageTk.PhotoImage(im)
     image_label.configure(image=ph)
     # keep a reference to the photo
