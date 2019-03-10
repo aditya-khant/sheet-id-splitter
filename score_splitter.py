@@ -104,13 +104,19 @@ class Score:
         else: 
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
-        
+        indices = find_peaks(-1*horiz_sum_verts)[0]
+        minima = horiz_sum_verts[indices]
+        # the most important part
+        # if we take the max, it starts to kick out values we don't want it to
+        # we basically need a less sensitive minima detector
+        avg_min = np.average(minima)
+
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
-            staff_split_indices = list(split_indices_average(horiz_sum_verts))
+            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min))
         elif split_type == 'strict':
-            staff_split_indices = list(split_indices(horiz_sum_verts))
+            staff_split_indices = list(split_indices(horiz_sum_verts, lambda x: x <= avg_min))
         else:
             raise Exception('Invalid split_type given')
         
@@ -139,15 +145,6 @@ class Score:
             if imwrite:
                 cv.line(img_color, (0, start), (self._score.shape[1], start), (255,0,0), 5 )
                 cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
-        
-        if len(staff_split_indices) == 0:
-            min_sum = horiz_sum_verts.min()
-            max_sum = horiz_sum_verts.max()
-            thresh = (min_sum + max_sum) / 2
-            if split_type == 'average':
-                staff_split_indices = list(split_indices_average(horiz_sum_verts, comparator = (lambda x: x < thresh)))
-            elif split_type == 'strict':
-                staff_split_indices = list(split_indices(horiz_sum_verts, comparator = (lambda x: x < thresh)))
 
         if len(staff_split_indices) == 0:
             self._staves_start_end = [(0, self._score.shape[1])]
@@ -660,6 +657,6 @@ if __name__ == '__main__':
     # get_ten_thousand_bars()
     # cnn_bar_img(length=50)
     # cnn_txt_staves()
-    test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_peaks_thresh/', toggle='peaks')
+    test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_avg_min/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     
