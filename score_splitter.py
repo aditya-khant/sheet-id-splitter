@@ -221,8 +221,8 @@ class Score:
             return None
         # downsample then convert to RGB
         shape_min_width, shape_min_height = min(staff.shape for staff in self._staves)
-        min_width = 250
-        min_height = 100
+        min_width = 1024
+        min_height = 1024
         images = [downsample_image(cv.cvtColor(staff,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, width=min_width, height=min_height)
                   for staff in self._staves]
         if images ==[]:
@@ -233,8 +233,8 @@ class Score:
         if self._bars_start_end == []:
             self._find_bars_using_peaks()
         # downsample then convert to RGB
-        min_width = 100
-        min_height = 250
+        min_width = 1024
+        min_height = 1024
         im_list = []
         if len(self._bars_start_end) <= 1: # if there is one bar, split staff into 2 parts
             im_list.append(self._score[self._bars_start_end[0][1]:self._bars_start_end[0][2], 0:self._bars_start_end[0][0]])
