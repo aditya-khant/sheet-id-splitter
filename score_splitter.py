@@ -145,18 +145,6 @@ class Score:
             if imwrite:
                 cv.line(img_color, (0, start), (self._score.shape[1], start), (255,0,0), 5 )
                 cv.line(img_color, (0, end), (self._score.shape[1], end), (255,0,0), 5 )
-<<<<<<< HEAD
-=======
-
-        if len(staff_split_indices) == 0:
-            min_sum = horiz_sum_verts.min()
-            max_sum = horiz_sum_verts.max()
-            thresh = (min_sum + max_sum) / 2
-            if split_type == 'average':
-                staff_split_indices = list(split_indices_average(horiz_sum_verts, comparator = (lambda x: x < thresh)))
-            elif split_type == 'strict':
-                staff_split_indices = list(split_indices(horiz_sum_verts, comparator = (lambda x: x < thresh)))
->>>>>>> 296053274d73a2357196ef6a84713fe25faba595
 
         if len(staff_split_indices) == 0:
             self._staves_start_end = [(0, self._score.shape[1])]
