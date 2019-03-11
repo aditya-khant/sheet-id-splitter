@@ -116,7 +116,7 @@ class Score:
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
-            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min))
+            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min)) #
         elif split_type == 'strict':
             staff_split_indices = list(split_indices(horiz_sum_verts, lambda x: x <= avg_min))
         else:
