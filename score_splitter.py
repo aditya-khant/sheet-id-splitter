@@ -108,7 +108,6 @@ class Score:
         horiz_sum_hist = np.bincount(horiz_sum_verts.astype(int))
         avg_min = np.argmax(horiz_sum_hist)
 
-
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
