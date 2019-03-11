@@ -63,7 +63,7 @@ class Score:
         # TODO: figure out how to find the optimal value
         vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
-        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
+        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size)) # the one should be changed 
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
@@ -106,12 +106,12 @@ class Score:
         horiz_sum_verts = verts_norm.sum(axis=1)
         indices = find_peaks(-1*horiz_sum_verts)[0]
         minima = horiz_sum_verts[indices]
-        horiz_sum_hist = np.bincount(horiz_sum_verts.astype(int))
-        avg_min = np.argmax(horiz_sum_hist)
+        # horiz_sum_hist = np.bincount(horiz_sum_verts.astype(int))
+        # avg_min = np.argmax(horiz_sum_hist)
         # the most important part
         # if we take the max, it starts to kick out values we don't want it to
         # we basically need a less sensitive minima detector
-        # avg_min = np.average(minima)
+        avg_min = np.average(minima)
 
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
