@@ -55,7 +55,7 @@ class Score:
         generates an image of the same shape as 'self._score_bw' where only the vertical lines remain.
         '''
         self._horizontals = find_horizontal_lines(self._score_bw)
-        self._verticals = np.copy(cv.GaussianBlur(self._score_bw, (3, 3), 0))
+        self._verticals = np.copy(self._score_bw)
         self._noisy_verticals = np.copy(self._score_bw)
         # Specify size on vertical axis
         rows, _ = self._verticals.shape
