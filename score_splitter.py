@@ -63,7 +63,7 @@ class Score:
         # TODO: figure out how to find the optimal value
         vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
-        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (2, vertical_size))
+        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
@@ -116,7 +116,7 @@ class Score:
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
-            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min)) #
+            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min)) 
         elif split_type == 'strict':
             staff_split_indices = list(split_indices(horiz_sum_verts, lambda x: x <= avg_min))
         else:
