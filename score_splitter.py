@@ -104,14 +104,10 @@ class Score:
         else:
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
-        indices = find_peaks(-1*horiz_sum_verts)[0]
-        minima = horiz_sum_verts[indices]
-        # horiz_sum_hist = np.bincount(horiz_sum_verts.astype(int))
-        # avg_min = np.argmax(horiz_sum_hist)
-        # the most important part
-        # if we take the max, it starts to kick out values we don't want it to
-        # we basically need a less sensitive minima detector
-        avg_min = np.average(minima)
+        
+        horiz_sum_hist = np.bincount(horiz_sum_verts.astype(int))
+        avg_min = np.argmax(horiz_sum_hist)
+
 
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
