@@ -63,7 +63,7 @@ class Score:
         # TODO: figure out how to find the optimal value
         vertical_size = rows // 30
         # Create structure element for extracting vertical lines through morphology operations
-        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size)) # the one should be changed 
+        vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size)) # the one should be changed
         # Apply morphology operations
         self._verticals = cv.erode(self._verticals, vertical_structure)
         self._verticals = cv.dilate(self._verticals, vertical_structure)
@@ -104,14 +104,14 @@ class Score:
         else:
             verts_norm = self._verticals
         horiz_sum_verts = verts_norm.sum(axis=1)
-        
+
         horiz_sum_hist = np.bincount(horiz_sum_verts.astype(int))
         avg_min = np.argmax(horiz_sum_hist)
 
         # tuples of (start,end) denoting where to split the image at
         staff_split_indices = None
         if split_type == 'average':
-            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min)) 
+            staff_split_indices = list(split_indices_average(horiz_sum_verts, lambda x: x <= avg_min))
         elif split_type == 'strict':
             staff_split_indices = list(split_indices(horiz_sum_verts, lambda x: x <= avg_min))
         else:
@@ -230,6 +230,7 @@ class Score:
         for i in range(len(self._bars_start_end) - 1):
             cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
             if cropped_bar.size != 0:
+                print(cropped_bar.shape)
                 im_list.append(cropped_bar)
         images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
                   for bar in im_list ]
