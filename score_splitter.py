@@ -653,7 +653,7 @@ def cnn_bar_size_printout(dataset="piano_dataset",output_dir='/home/ckurashige/y
             print('processing image {0} with name {1}'.format(i, name))
             # add 'i' to disambiguate pieces
             s = Score(image, output_dir + name + str(i))
-            s._create_cnn_bars_waveforms
+            s._create_cnn_bars_waveforms()
         else:
             break
 
