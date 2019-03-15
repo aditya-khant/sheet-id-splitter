@@ -3,6 +3,8 @@ import os.path as path
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
+from scipy.signal import argrelextrema
+from scipy.signal import find_peaks
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -93,14 +95,26 @@ def find_staves(gray_score, verticals, split_type = 'average', gen_image = False
     '''
 
     # normalize and find the horizontal sum of the vertical lines
-    verts_norm = verticals // verticals.max()
+    if verticals.max() != 0:
+        verts_norm = verticals // verticals.max()
+    else:
+        verts_norm = verticals
     horiz_sum_verts = verts_norm.sum(axis=1)
+    # make histogram of the horizontal sum waveform
+    horiz_sum_hist = np.bincont(horiz_sum_verts.astype(int))
+    # we may change this so that it isn't quite a mode by upping the bin size
+    # from 1
+    mode = np.argmax(horiz_sum_hist)
+    # anything less than the mode is whitespace
+    split_comparator = lambda x: x <= mode
+
     # tuples of (start,end) denoting where to split the image at
-    staff_split_indices = None
     if split_type == 'average':
-        staff_split_indices = list(split_indices_average(horiz_sum_verts))
+        staff_split_indices = list(split_indices_average(horiz_sum_verts),
+                                   split_comparator)
     elif split_type == 'strict':
-        staff_split_indices = list(split_indices(horiz_sum_verts))
+        staff_split_indices = list(split_indices(horiz_sum_verts),
+                                   split_comparator)
     else:
         raise Exception('Invalid split_type given')
 
