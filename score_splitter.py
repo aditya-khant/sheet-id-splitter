@@ -232,7 +232,9 @@ class Score:
             if cropped_bar.size != 0:
                 print("cropped_bar.shape =", cropped_bar.shape)
                 im_list.append(cropped_bar)
-        images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
+        bar_height = 128
+        bar_width = 128
+        images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True, height=bar_height, width=bar_width)
                   for bar in im_list ]
         if images ==[]:
             return None
