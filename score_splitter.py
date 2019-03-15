@@ -27,7 +27,7 @@ class Score:
           name  - identifier for the score
         '''
         # binary conversion
-        print(score.shape)
+        print("score.shape =", score.shape)
         gray = cv.bitwise_not(score)
         bw = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2)
         self._score_gray = gray
@@ -230,7 +230,7 @@ class Score:
         for i in range(len(self._bars_start_end) - 1):
             cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
             if cropped_bar.size != 0:
-                print(cropped_bar.shape)
+                print("cropped_bar.shape =", cropped_bar.shape)
                 im_list.append(cropped_bar)
         images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), by_rate=False, by_size=True)
                   for bar in im_list ]
