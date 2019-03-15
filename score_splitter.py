@@ -230,7 +230,7 @@ class Score:
         for i in range(len(self._bars_start_end) - 1):
             cropped_bar = self._score[self._bars_start_end[i][1]:self._bars_start_end[i][2], self._bars_start_end[i][0]:self._bars_start_end[i+1][0]]
             if cropped_bar.size != 0:
-                print("cropped_bar.shape =", cropped_bar.shape)
+                # print("cropped_bar.shape =", cropped_bar.shape)
                 im_list.append(cropped_bar)
         bar_height = 128
         bar_width = 128
