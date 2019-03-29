@@ -204,6 +204,11 @@ def visualizeMeasures(measures, img):
     plt.show()
     
 def extractMeasures(jpgfile, visualize = False):
+    '''
+    Input: Path to png image of score
+    Output: The bar waveforms after they have been processed by the benchmark
+            CNNs.
+    '''
     ####### parameters ####### 
     resizeW = 1000
     resizeH = 1000
@@ -216,6 +221,9 @@ def extractMeasures(jpgfile, visualize = False):
     estStaffLineDelta = 1
     barlineTol = 1
     minBarlineLen = 3 
+    #for reampling for the CNN
+    bar_height = 128
+    bar_width = 128
     ##########################
     
     # prep image
@@ -255,8 +263,6 @@ def extractMeasures(jpgfile, visualize = False):
         if bar.size != 0:
             img_list.append(bar)
         
-    bar_height = 128
-    bar_width = 128
     images = [downsample_image(cv2.cvtColor(bar,cv2.COLOR_GRAY2RGB), by_rate=False, by_size=True, height=bar_height, width=bar_width)
                   for bar in img_list ]
     
