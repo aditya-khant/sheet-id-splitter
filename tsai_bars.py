@@ -193,7 +193,7 @@ def getMeasureBB(clusters):
                 measures.append((row_min, col_min, row_max, col_max))
     return measures
 
-def visualizeMeasures(measures, img):
+def visualizeMeasures(measures, img, path):
     plt.figure(figsize = (20,20))
     plt.imshow(img, cmap='gray')
     ax = plt.gca()
@@ -203,7 +203,7 @@ def visualizeMeasures(measures, img):
         ax.add_patch(rect)
     plt.show()
     
-def extractMeasures(jpgfile, visualize = False):
+def extractMeasures(img, path = None, visualize = False):
     '''
     Input: Path to png image of score
     Output: The bar waveforms after they have been processed by the benchmark
@@ -227,8 +227,7 @@ def extractMeasures(jpgfile, visualize = False):
     ##########################
     
     # prep image
-    img = Image.open(jpgfile).convert('L')
-    img.thumbnail([resizeW, resizeH])
+    img.resize(img, (resizeW, resizeH))
     X = getNormImage(img)
     
     # get barline candidates
@@ -252,7 +251,8 @@ def extractMeasures(jpgfile, visualize = False):
     
     # visualize result
     if visualize:
-        visualizeMeasures(measures, img)
+        if path is not None:
+            visualizeMeasures(measures, img, path)
 
     #split the actual image into the bars
     
