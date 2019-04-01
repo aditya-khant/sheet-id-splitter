@@ -660,7 +660,7 @@ def cnn_bar_size_printout(dataset="piano_dataset",output_dir='/home/ckurashige/y
         else:
             break
 
-def tsai_bar_printout(output_dir='/home/ckurashige/yadayada/'):
+def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
     for i, (label, image_file) in enumerate(data.database_labels, data.database_paths):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
