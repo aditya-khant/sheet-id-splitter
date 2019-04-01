@@ -266,4 +266,6 @@ def extractMeasures(img, path = None, visualize = False):
     images = [downsample_image(cv2.cvtColor(bar,cv2.COLOR_GRAY2RGB), by_rate=False, by_size=True, height=bar_height, width=bar_width)
                   for bar in img_list]
 
+    if visualize:
+        return
     return call_benchmark(images=images)
