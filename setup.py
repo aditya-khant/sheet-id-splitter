@@ -8,6 +8,7 @@ setuptools.setup(
         "numpy",
         "matplotlib",
         "opencv-python",
+        "scikit-image",
     ],
     packages=setuptools.find_packages(),
 )
