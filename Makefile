@@ -1,6 +1,6 @@
 .PHONY: install
 install:
-	pip install -Ue .
+	pip3 install -Ue .
 
 .PHONY: test
 test:
