@@ -227,7 +227,7 @@ def extractMeasures(img, path = None, visualize = False):
     ##########################
 
     # prep image
-    img = img.resize(img, (resizeW, resizeH))
+    img = cv2.resize(img, (resizeW, resizeH))
     X = getNormImage(img)
 
     # get barline candidates
