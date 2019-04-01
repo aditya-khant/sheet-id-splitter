@@ -37,7 +37,7 @@ def morphFilterLinesVert(arr, kernel_length = 51, kernel_width = 5):
     lines = cv2.erode(lines, np.ones((3,1)), iterations = 1) # undo expansion
     vkernel = np.ones((kernel_length, 1), np.uint8)
     hkernel = np.ones((1, kernel_width), np.uint8)
-    lines = cv2.erode(lines, vkernel, iterations = 1) 
+    lines = cv2.erode(lines, vkernel, iterations = 1)
     lines = cv2.dilate(lines, vkernel, iterations = 1)
     lines = cv2.dilate(lines, hkernel, iterations = 1)
     return lines
@@ -68,7 +68,7 @@ def createCombFilters(stavelen_ll, stavelen_ul):
     return combfilts, stavelens
 
 def computeStaveFeatureMap(img, combfilts):
-    
+
     # cut hlines into left and right halves, compute median of row pixel values
     lhcols = img.shape[1] // 2
     img_left = img[:,0:lhcols] # separate into two halfs to handle lines being slightly off horizontal
@@ -76,14 +76,14 @@ def computeStaveFeatureMap(img, combfilts):
     rmeds_left = np.median(img_left, axis=1, keepdims = True)
     rmeds_right = np.median(img_right, axis=1, keepdims = True)
     rmeds = np.hstack((rmeds_left, rmeds_right))
-    
+
     # apply comb filters
     featmap = []
     for i in range(combfilts.shape[0]):
         m = convolve2d(rmeds, np.fliplr(np.flipud(combfilts[i])), mode = 'valid')
         featmap.append(m)
     featmap = np.array(featmap)
-    
+
     return featmap, rmeds
 
 def estimateStaveHeight(featmap, stavelens, topN = 20):
@@ -102,7 +102,7 @@ def getEstStaffLineLocs(feat, barlines, staveHeight, img, delta = 1):
         rtop = bbox[0]
         rbot = bbox[2]
         c = int(np.mean((bbox[1], bbox[3])))
-        
+
         pair = []
         for r in [rtop, rbot]:
             if r == rtop:
@@ -110,7 +110,7 @@ def getEstStaffLineLocs(feat, barlines, staveHeight, img, delta = 1):
                 rlower = max(r - delta * staveHeight, 0)
             else:
                 rupper = min(r + 1, img.shape[0])
-                rlower = max(r - 2 * delta * staveHeight, 0)                
+                rlower = max(r - 2 * delta * staveHeight, 0)
             featColIdx = 0 if c < img.shape[1] // 2 else 1
             reg = feat[rlower:rupper, featColIdx]
             roffset = reg.argmax()
@@ -118,7 +118,7 @@ def getEstStaffLineLocs(feat, barlines, staveHeight, img, delta = 1):
             rend = rstart + staveHeight - 1
             pair.append((rstart, rend, c, r))
         preds.append(pair)
-        
+
     return preds
 
 def filterCandidates(candidates, estStaffLineLocs, tol = 5, mindist = 3):
@@ -157,7 +157,7 @@ def clusterBarlines(barlines):
                 if overlap > 0:
                     clusters[j] = clusterIndex
             clusterIndex += 1
-    
+
     # return barlines by cluster & sorted left to right
     result = []
     for i in range(clusterIndex):
@@ -167,7 +167,7 @@ def clusterBarlines(barlines):
                 curCluster.append(bbox)
         curCluster.sort(key = lambda x: x[1]) # sort by col, increasing
         result.append(curCluster)
-        
+
     return result
 
 def getMeasureBB(clusters):
@@ -175,18 +175,18 @@ def getMeasureBB(clusters):
     for cl in clusters:
         for i, tup in enumerate(cl): # each tup is (row_min, col_min, row_max, col_max)
             if i < len(cl) - 1:
-                
+
                 # coord left side
                 row_topL = tup[0]
                 row_botL = tup[2]
                 col_min = int(np.mean((tup[1], tup[3])))
-                
+
                 # coord right side
                 next_tup = cl[i+1]
                 row_topR = next_tup[0]
                 row_botR = next_tup[2]
-                col_max = int(np.mean((next_tup[1], next_tup[3]))) + 1 
-                
+                col_max = int(np.mean((next_tup[1], next_tup[3]))) + 1
+
                 # measure bbox
                 row_min = min(row_topL, row_topR)
                 row_max = max(row_botL, row_botR)
@@ -197,7 +197,7 @@ def visualizeMeasures(measures, img, path):
     plt.figure(figsize = (1000,1000))
     plt.imshow(img, cmap='gray')
     ax = plt.gca()
-    for bbox in measures: 
+    for bbox in measures:
         row_min, col_min, row_max, col_max = bbox
         rect = mpatches.Rectangle((col_min, row_min), col_max - col_min, row_max - row_min, linewidth=2 , edgecolor='r', facecolor='none')
         ax.add_patch(rect)
@@ -209,7 +209,7 @@ def extractMeasures(img, path = None, visualize = False):
     Output: The bar waveforms after they have been processed by the benchmark
             CNNs.
     '''
-    ####### parameters ####### 
+    ####### parameters #######
     resizeW = 1000
     resizeH = 1000
     morphFilterLength = 51
@@ -220,22 +220,22 @@ def extractMeasures(img, path = None, visualize = False):
     staveHeightTopN = 20
     estStaffLineDelta = 1
     barlineTol = 1
-    minBarlineLen = 3 
+    minBarlineLen = 3
     #for reampling for the CNN
     bar_height = 128
     bar_width = 128
     ##########################
-    
+
     # prep image
     img = img.resize(img, (resizeW, resizeH))
     X = getNormImage(img)
-    
+
     # get barline candidates
     vlines = morphFilterLinesVert(X, morphFilterLength, morphFilterWidth)
     vlines_bin, binarize_thresh = binarize_std(vlines, binarizeThreshStd) # threshold in units of std above mean
     vlabels = measure.label(vlines_bin)
     candidates = [reg.bbox for reg in regionprops(vlabels)]
-    
+
     # staff line detection
     combfilts, stavelens = createCombFilters(staveHeightMin, staveHeightMax)
     featmap, rmeds = computeStaveFeatureMap(X, combfilts)
@@ -248,22 +248,22 @@ def extractMeasures(img, path = None, visualize = False):
     barlines = filterCandidates(candidates, estStaffLineLocs, tol, minBarlineLen) # minBarLineLen in units of staveHeight
     bar_clusters = clusterBarlines(barlines)
     measures = getMeasureBB(bar_clusters)
-    
+
     # visualize result
     if visualize:
         if path is not None:
             visualizeMeasures(measures, img, path)
 
     #split the actual image into the bars
-    
+
     img_list = []
-    
+
     for bbox in measures:
         bar = np.array(img)[bbox[1]:bbox[3], bbox[0]:bbox[2]]
         if bar.size != 0:
             img_list.append(bar)
-        
+
     images = [downsample_image(cv2.cvtColor(bar,cv2.COLOR_GRAY2RGB), by_rate=False, by_size=True, height=bar_height, width=bar_width)
-                  for bar in img_list ]
-    
+                  for bar in img_list]
+
     return call_benchmark(images=images)
