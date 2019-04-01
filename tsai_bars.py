@@ -201,7 +201,7 @@ def visualizeMeasures(measures, img, path):
         row_min, col_min, row_max, col_max = bbox
         rect = mpatches.Rectangle((col_min, row_min), col_max - col_min, row_max - row_min, linewidth=2 , edgecolor='r', facecolor='none')
         ax.add_patch(rect)
-    plt.imsave(path, ax)
+    plt.savefig(path)
     
 def extractMeasures(img, path = None, visualize = False):
     '''

@@ -665,7 +665,7 @@ def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(image_file)[-1]
         print('processing image {0} with name {1}'.format(i, name))
-        tb.extractMeasures(image, path=image_file, visualize=True)
+        tb.extractMeasures(image, path=output_dir+"image_{0}_{1}.png".format(i, name), visualize=True)
         
        
 
