@@ -194,7 +194,7 @@ def getMeasureBB(clusters):
     return measures
 
 def visualizeMeasures(measures, img, path):
-    plt.figure(figsize = (1000,1000))
+    plt.figure(figsize = (20,20))
     plt.imshow(img, cmap='gray')
     ax = plt.gca()
     for bbox in measures:
