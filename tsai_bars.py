@@ -194,18 +194,18 @@ def getMeasureBB(clusters):
     return measures
 
 def visualizeMeasures(measures, img, path):
-    plt.figure(figsize = (20,20))
+    plt.figure(figsize = (1000,1000))
     plt.imshow(img, cmap='gray')
     ax = plt.gca()
     for bbox in measures: 
         row_min, col_min, row_max, col_max = bbox
         rect = mpatches.Rectangle((col_min, row_min), col_max - col_min, row_max - row_min, linewidth=2 , edgecolor='r', facecolor='none')
         ax.add_patch(rect)
-    plt.show()
+    plt.imsave(path, ax)
     
 def extractMeasures(img, path = None, visualize = False):
     '''
-    Input: Path to png image of score
+    Input: gray png image of score
     Output: The bar waveforms after they have been processed by the benchmark
             CNNs.
     '''
@@ -227,7 +227,7 @@ def extractMeasures(img, path = None, visualize = False):
     ##########################
     
     # prep image
-    img.resize(img, (resizeW, resizeH))
+    img = img.resize(img, (resizeW, resizeH))
     X = getNormImage(img)
     
     # get barline candidates

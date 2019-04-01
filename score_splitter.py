@@ -11,6 +11,7 @@ from scipy.signal import find_peaks
 from score_splitter_cleanup import start_end_voice_lines
 from score_splitter_cleanup import start_end_voice_lines_by_staff
 from score_splitter_cleanup import find_horizontal_lines
+import tsai_bars as tb
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -659,12 +660,12 @@ def cnn_bar_size_printout(dataset="piano_dataset",output_dir='/home/ckurashige/y
         else:
             break
 
-def tsai_bar_printout(dataset="piano_dataset",output_dir='/home/ckurashige/yadayada/'):
-    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+def tsai_bar_printout(output_dir='/home/ckurashige/yadayada/'):
+    for i, (label, image_file) in enumerate(data.database_labels, data.database_paths):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
-        # add 'i' to disambiguate pieces
+        tb.extractMeasures(image, path=image_file, visualize=True)
         
        
 
