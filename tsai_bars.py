@@ -202,7 +202,7 @@ def visualizeMeasures(measures, img, path):
         rect = mpatches.Rectangle((col_min, row_min), col_max - col_min, row_max - row_min, linewidth=2 , edgecolor='r', facecolor='none')
         ax.add_patch(rect)
     plt.savefig(path)
-    
+
 def extractMeasures(img, path = None, visualize = False):
     '''
     Input: gray png image of score
@@ -252,7 +252,7 @@ def extractMeasures(img, path = None, visualize = False):
     # visualize result
     if visualize:
         if path is not None:
-            visualizeMeasures(measures, img, path)
+            return visualizeMeasures(measures, img, path)
 
     #split the actual image into the bars
 
@@ -266,6 +266,7 @@ def extractMeasures(img, path = None, visualize = False):
     images = [downsample_image(cv2.cvtColor(bar,cv2.COLOR_GRAY2RGB), by_rate=False, by_size=True, height=bar_height, width=bar_width)
                   for bar in img_list]
 
-    if visualize:
-        return
-    return call_benchmark(images=images)
+    if not images:
+        return images
+    else:
+        return call_benchmark(images=images)
