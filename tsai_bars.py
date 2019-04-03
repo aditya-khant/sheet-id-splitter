@@ -15,7 +15,7 @@ from skimage.color import label2rgb
 import matplotlib.patches as mpatches
 from scipy.signal import convolve2d, medfilt
 
-#from benchmarks import call_benchmark
+from benchmarks import call_benchmark
 
 
 def getNormImage(img):
@@ -280,8 +280,5 @@ def extractMeasures(img, path = None, visualize = False):
     if not images:
         return images
     else:
-        return images
-        #return call_benchmark(images=images)
+        return call_benchmark(images=images)
 
-img = cv2.imread('295069_100_2.png', cv2.IMREAD_GRAYSCALE)
-output = extractMeasures(img, path = 'testing.png', visualize=True)
