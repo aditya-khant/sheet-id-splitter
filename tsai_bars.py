@@ -207,7 +207,7 @@ def buffer_measures(measures, buffer_pct):
     new_measures=[]
     for bbox in measures:
         row_min, col_min, row_max, col_max = bbox
-        buffer = (row_max-row_min)*buffer_pct
+        buffer = int((row_max-row_min)*buffer_pct)
         row_min = row_min - buffer
         row_max = row_max + buffer
         new_measures += [(row_min, col_min, row_max, col_max)]
@@ -281,4 +281,5 @@ def extractMeasures(img, path = None, visualize = False):
         return images
     else:
         return call_benchmark(images=images)
+        
 
