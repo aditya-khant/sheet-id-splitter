@@ -15,7 +15,7 @@ from skimage.color import label2rgb
 import matplotlib.patches as mpatches
 from scipy.signal import convolve2d, medfilt
 
-from benchmarks import call_benchmark
+#from benchmarks import call_benchmark
 
 
 def getNormImage(img):
@@ -202,6 +202,16 @@ def visualizeMeasures(measures, img, path):
         rect = mpatches.Rectangle((col_min, row_min), col_max - col_min, row_max - row_min, linewidth=2 , edgecolor='r', facecolor='none')
         ax.add_patch(rect)
     plt.savefig(path)
+    
+def buffer_measures(measures, buffer_pct):
+    new_measures=[]
+    for bbox in measures:
+        row_min, col_min, row_max, col_max = bbox
+        buffer = (row_max-row_min)*buffer_pct
+        row_min = row_min - buffer
+        row_max = row_max + buffer
+        new_measures += [(row_min, col_min, row_max, col_max)]
+    return new_measures
 
 def extractMeasures(img, path = None, visualize = False):
     '''
@@ -221,6 +231,7 @@ def extractMeasures(img, path = None, visualize = False):
     estStaffLineDelta = 1
     barlineTol = 1
     minBarlineLen = 3
+    buffer_pct = 0.2
     #for reampling for the CNN
     bar_height = 128
     bar_width = 128
@@ -248,7 +259,7 @@ def extractMeasures(img, path = None, visualize = False):
     barlines = filterCandidates(candidates, estStaffLineLocs, tol, minBarlineLen) # minBarLineLen in units of staveHeight
     bar_clusters = clusterBarlines(barlines)
     measures = getMeasureBB(bar_clusters)
-
+    measures = buffer_measures(measures, buffer_pct)
     # visualize result
     if visualize:
         if path is not None:
@@ -269,4 +280,8 @@ def extractMeasures(img, path = None, visualize = False):
     if not images:
         return images
     else:
-        return call_benchmark(images=images)
+        return images
+        #return call_benchmark(images=images)
+
+img = cv2.imread('295069_100_2.png', cv2.IMREAD_GRAYSCALE)
+output = extractMeasures(img, path = 'testing.png', visualize=True)
