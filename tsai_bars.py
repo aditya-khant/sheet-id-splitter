@@ -231,7 +231,7 @@ def extractMeasures(img, path = None, visualize = False):
     estStaffLineDelta = 1
     barlineTol = 1
     minBarlineLen = 3
-    buffer_pct = 0.2
+    buffer_pct = 0.4
     #for reampling for the CNN
     bar_height = 128
     bar_width = 128
