@@ -523,7 +523,7 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for i, (label, image_file) in enumerate(data.index_images(dataset=dataset)):
+    for i, (label, image_file) in enumerate(zip(data.database_labels, data.database_paths)):
         if i < 5000:
             image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
             name = path.split(label)[-1]
@@ -677,4 +677,5 @@ if __name__ == '__main__':
     # test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_avg_min/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     # cnn_bar_size_printout()
-    tsai_bar_printout()
+    # tsai_bar_printout()
+    test_bar_print(toggle='peaks')
