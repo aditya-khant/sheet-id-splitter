@@ -291,10 +291,10 @@ def extractMeasuresHybrid(img):
             CNNs.
     '''
     ####### parameters #######
-    resizeW = 200
-    resizeH = 200
-    morphFilterLength = 10
-    morphFilterWidth = 1
+    resizeW = 1000
+    resizeH = 1000
+    morphFilterLength = 51
+    morphFilterWidth = 5
     binarizeThreshStd = 2
     staveHeightMin = 15
     staveHeightMax = 30
@@ -332,9 +332,7 @@ def extractMeasuresHybrid(img):
     measures = getMeasureBB(bar_clusters)
     measures = buffer_measures(measures, buffer_pct)
     
-
     if measures is not None:
-        measures = [(x[1], x[3]) for x in measures]
         return measures
     else:
         return None
