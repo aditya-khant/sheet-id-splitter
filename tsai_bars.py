@@ -331,8 +331,10 @@ def extractMeasuresHybrid(img):
     bar_clusters = clusterBarlines(barlines)
     measures = getMeasureBB(bar_clusters)
     measures = buffer_measures(measures, buffer_pct)
+    
 
     if measures is not None:
-        return (measures[1], measures[3])   
+        measures = [(x[1], x[3]) for x in measures]
+        return measures
     else:
         return None
