@@ -404,6 +404,7 @@ class Score:
             bar_lines = tb.extractMeasuresHybrid(one_staff)
             bar_list = []
             bars_in_this_stave = []
+            print(bar_lines)
             if bar_lines is not None:
                 for i, j in bar_lines:
                     bars_in_this_stave += [(i, start, end)]
@@ -422,7 +423,7 @@ class Score:
                 self._bars_start_end += [(self._score.shape[0], start, end)]
                 bar_list.append(0)
                 bar_list.append(self._score.shape[0])
-            print(bar_list)
+           
             self._bars.append(bar_list)
 
 
