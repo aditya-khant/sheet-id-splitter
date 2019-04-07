@@ -558,17 +558,14 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
     Test the staff splitting by rendering where the score would be split for
     each file.
     '''
-    for i, (label, image_file) in enumerate(zip(data.database_labels, data.database_paths)):
-        if i < 5000:
-            image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
-            name = path.split(label)[-1]
-            print('processing image {0} with name {1}'.format(i, name))
-            # add 'i' to disambiguate pieces
-            s = Score(image, output_dir + name + str(i))
-            s._print_with_bars(toggle=toggle)
-        else:
-            break
-
+    for i, (image_file) in enumerate(data.database_paths):
+        image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+        name = path.split(image_file)[-1]
+        print('processing image {0} with name {1}'.format(i, name))
+        # add 'i' to disambiguate pieces
+        s = Score(image, output_dir + name + str(i))
+        s._print_with_bars(toggle=toggle)
+        
 
 def cleanup_bars(bars, width):
     """Cleans up a set of bars in staves globally"""
@@ -713,4 +710,4 @@ if __name__ == '__main__':
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     # cnn_bar_size_printout()
     # tsai_bar_printout()
-    test_bar_print(toggle='tb')
+    test_bar_print(toggle='tb', output_dir='/home/ckurashige/tsai_bars_hybrid/')
