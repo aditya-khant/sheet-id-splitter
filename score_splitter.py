@@ -399,6 +399,7 @@ class Score:
         self._bars_start_end = []
         self._bars = []
         measures = tb.extractMeasuresHybrid(self._score_gray)
+        print(measures)
         if measures is not None:
             while (len(measures) > 0):
                 meas = measures[0]
