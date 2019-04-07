@@ -399,14 +399,14 @@ class Score:
         self._bars_start_end = []
         self._bars = []
         measures = tb.extractMeasuresHybrid(self._score)
-        print(measures)
         if measures is not None:
             while (len(measures) > 0):
                 meas = measures[0]
                 for start, end in self._staves_start_end:
-                    if meas[0] > start and meas[2] < end:
+                    if (meas[0] > start and meas[0] < end) or (meas[2] > start and meas[2] < end):
                         self._bars_start_end += [(meas[1], start, end)]
                         self._bars_start_end += [(meas[3], start, end)]
+                        print("triggered")
                         break
                 measures = measures[1:]
                 
