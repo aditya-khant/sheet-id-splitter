@@ -313,6 +313,8 @@ class Score:
             self._find_bars_using_peaks()
         elif toggle == "intersect":
             self._find_bars_by_intersection()
+        elif toggle == "hybrid" or toggle == "tb":
+            self._find_bars_using_tb()
         else:
             raise Exception("Check Toggle")
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
@@ -391,6 +393,38 @@ class Score:
                 bar_list.append(self._score.shape[0])
             self._bars.append(bar_list)
 
+    def _find_bars_using_tb(self, clean_up = True):
+        if self._staves is None:
+            self._find_staves()
+        self._bars_start_end = []
+        self._bars = []
+
+        for start, end in self._staves_start_end:
+            one_staff = list(cut_array(self._score_gray, [(start, end)]))[0]
+            bar_lines = tb.extractMeasuresHybrid(one_staff)
+            bar_list = []
+            bars_in_this_stave = []
+            if bar_lines is not None:
+                for i, j in bar_lines:
+                    bars_in_this_stave += [(i, start, end)]
+                    bar_list.append(i)
+                    bars_in_this_stave += [(j, start, end)]
+                    bar_list.append(j)
+                if clean_up:
+                    width_magic_number = 10
+                    cleaned_up_bars = cleanup_bars(bars_in_this_stave, self._score.shape[0] / width_magic_number )
+                    if cleaned_up_bars is not None:
+                        self._bars_start_end += cleaned_up_bars
+                else:
+                    self._bars_start_end += bars_in_this_stave
+            else:
+                self._bars_start_end += [(0, start, end)]
+                self._bars_start_end += [(self._score.shape[0], start, end)]
+                bar_list.append(0)
+                bar_list.append(self._score.shape[0])
+            self._bars.append(bar_list)
+
+
 
     def _find_bars_by_intersection(self):
         if self._staves is None:
@@ -403,6 +437,7 @@ class Score:
             bar_lines = find_peaks(sum_staff)
             bars_for_staff = [(i,start, end) for i in bar_lines[0]]
             self._bars_start_end += bars_for_staff
+            
 
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width=1024, height=1024):
@@ -678,4 +713,4 @@ if __name__ == '__main__':
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     # cnn_bar_size_printout()
     # tsai_bar_printout()
-    test_bar_print(toggle='peaks')
+    test_bar_print(toggle='tb')

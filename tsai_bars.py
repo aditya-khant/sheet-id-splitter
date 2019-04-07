@@ -281,5 +281,58 @@ def extractMeasures(img, path = None, visualize = False):
         return images
     else:
         return call_benchmark(images=images)
-        
 
+
+# Modified version of Prof Tsai's hybrid splitter.
+def extractMeasuresHybrid(img):
+    '''
+    Input: gray png image of score
+    Output: The bar waveforms after they have been processed by the benchmark
+            CNNs.
+    '''
+    ####### parameters #######
+    resizeW = 1000
+    resizeH = 1000
+    morphFilterLength = 51
+    morphFilterWidth = 5
+    binarizeThreshStd = 2
+    staveHeightMin = 15
+    staveHeightMax = 30
+    staveHeightTopN = 20
+    estStaffLineDelta = 1
+    barlineTol = 1
+    minBarlineLen = 3
+    buffer_pct = 0.4
+    #for reampling for the CNN
+    bar_height = 128
+    bar_width = 128
+    ##########################
+
+    # prep image
+    img = cv2.resize(img, (resizeW, resizeH))
+    X = getNormImage(img)
+
+    # get barline candidates
+    vlines = morphFilterLinesVert(X, morphFilterLength, morphFilterWidth)
+    vlines_bin, binarize_thresh = binarize_std(vlines, binarizeThreshStd) # threshold in units of std above mean
+    vlabels = measure.label(vlines_bin)
+    candidates = [reg.bbox for reg in regionprops(vlabels)]
+
+    # staff line detection
+    combfilts, stavelens = createCombFilters(staveHeightMin, staveHeightMax)
+    featmap, rmeds = computeStaveFeatureMap(X, combfilts)
+    staveHeight, staveLenIdx, staveLenScores = estimateStaveHeight(featmap, stavelens, staveHeightTopN)
+    staveFeats = featmap[staveLenIdx]
+    estStaffLineLocs = getEstStaffLineLocs(staveFeats, candidates, staveHeight, X, estStaffLineDelta)
+
+    # filter & cluster candidates
+    tol = barlineTol * staveHeight // 4 + 1 # 1 barlineTol = distance between two adjacent staff lines
+    barlines = filterCandidates(candidates, estStaffLineLocs, tol, minBarlineLen) # minBarLineLen in units of staveHeight
+    bar_clusters = clusterBarlines(barlines)
+    measures = getMeasureBB(bar_clusters)
+    measures = buffer_measures(measures, buffer_pct)
+
+    if measures is not None:
+        return (measures[1], measures[3])   
+    else:
+        return None
