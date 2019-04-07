@@ -330,7 +330,7 @@ def extractMeasuresHybrid(img):
     barlines = filterCandidates(candidates, estStaffLineLocs, tol, minBarlineLen) # minBarLineLen in units of staveHeight
     bar_clusters = clusterBarlines(barlines)
     measures = getMeasureBB(bar_clusters)
-    measures = buffer_measures(measures, buffer_pct)
+    # measures = buffer_measures(measures, buffer_pct)
     
     if measures is not None:
         return measures
