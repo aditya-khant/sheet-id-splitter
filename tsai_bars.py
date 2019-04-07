@@ -291,10 +291,10 @@ def extractMeasuresHybrid(img):
             CNNs.
     '''
     ####### parameters #######
-    resizeW = 1000
-    resizeH = 1000
-    morphFilterLength = 51
-    morphFilterWidth = 5
+    resizeW = 200
+    resizeH = 200
+    morphFilterLength = 10
+    morphFilterWidth = 1
     binarizeThreshStd = 2
     staveHeightMin = 15
     staveHeightMax = 30
