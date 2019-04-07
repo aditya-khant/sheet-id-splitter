@@ -422,6 +422,7 @@ class Score:
                 self._bars_start_end += [(self._score.shape[0], start, end)]
                 bar_list.append(0)
                 bar_list.append(self._score.shape[0])
+            print(bar_list)
             self._bars.append(bar_list)
 
 
