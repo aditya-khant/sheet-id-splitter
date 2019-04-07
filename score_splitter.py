@@ -393,7 +393,7 @@ class Score:
                 bar_list.append(self._score.shape[0])
             self._bars.append(bar_list)
 
-    def _find_bars_using_tb(self, clean_up = True):
+    def _find_bars_using_tb(self, clean_up = False):
         if self._staves is None:
             self._find_staves()
         self._bars_start_end = []
