@@ -260,7 +260,6 @@ def extractMeasures(img, path = None, visualize = False):
     bar_clusters = clusterBarlines(barlines)
     measures = getMeasureBB(bar_clusters)
     measures = buffer_measures(measures, buffer_pct)
-    print(measures)
     # visualize result
     if visualize:
         if path is not None:
