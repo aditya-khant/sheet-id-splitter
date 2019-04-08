@@ -221,7 +221,7 @@ def extractMeasures(img, path = None, visualize = False):
     '''
     ####### parameters #######
     resizeW = 1000
-    resizeH = 1000
+    resizeH = 200
     morphFilterLength = 51
     morphFilterWidth = 5
     binarizeThreshStd = 2
