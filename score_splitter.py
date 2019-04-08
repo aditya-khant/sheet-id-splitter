@@ -393,7 +393,7 @@ class Score:
                 bar_list.append(self._score.shape[0])
             self._bars.append(bar_list)
 
-    def _find_bars_using_tb(self, clean_up = False):
+    def _find_bars_using_tb(self, clean_up = False, path = None):
         if self._staves is None:
             self._find_staves()
         self._bars_start_end = []
@@ -413,7 +413,7 @@ class Score:
 
         for start, end in self._staves_start_end:
             one_staff = list(cut_array(self._score, [(start, end)]))[0]
-            bar_lines = tb.extractMeasuresHybrid(one_staff)
+            bar_lines = tb.extractMeasures(one_staff, visualize=True, path=path)
             bar_list = []
             bars_in_this_stave = []
             # print(bar_lines)
@@ -710,7 +710,10 @@ def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
-        tb.extractMeasures(image, path=output_dir+"image_{0}_{1}.png".format(i, name), visualize=True)
+        s._find_staves()
+        for j, (start, end) in enumerate(s._staves_start_end):
+            one_staff = list(cut_array(s._score, [(start, end)]))[0]
+            tb.extractMeasures(one_staff, path=output_dir+"image_{0}_{1}_{2}.png".format(i, name, j), visualize=True)
         
        
 
@@ -722,5 +725,5 @@ if __name__ == '__main__':
     # test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_avg_min/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     # cnn_bar_size_printout()
-    # tsai_bar_printout()
-    test_bar_print(toggle='tb', output_dir='/home/ckurashige/tsai_bars_hybrid/')
+    tsai_bar_printout()
+    # test_bar_print(toggle='tb', output_dir='/home/ckurashige/tsai_bars_hybrid/')
