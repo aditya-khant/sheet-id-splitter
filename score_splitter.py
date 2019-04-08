@@ -416,7 +416,7 @@ class Score:
             bar_lines = tb.extractMeasuresHybrid(one_staff)
             bar_list = []
             bars_in_this_stave = []
-            print(bar_lines)
+            # print(bar_lines)
             if bar_lines is not None:
                 for i, j, k, l in bar_lines:
                     bars_in_this_stave += [(j, start, end)]
