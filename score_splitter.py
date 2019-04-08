@@ -710,6 +710,7 @@ def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
         image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
         name = path.split(label)[-1]
         print('processing image {0} with name {1}'.format(i, name))
+        s = Score(image, label)
         s._find_staves()
         for j, (start, end) in enumerate(s._staves_start_end):
             one_staff = list(cut_array(s._score, [(start, end)]))[0]
