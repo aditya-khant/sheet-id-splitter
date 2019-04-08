@@ -398,17 +398,45 @@ class Score:
             self._find_staves()
         self._bars_start_end = []
         self._bars = []
-        measures = tb.extractMeasuresHybrid(self._score)
-        if measures is not None:
-            while (len(measures) > 0):
-                meas = measures[0]
-                for start, end in self._staves_start_end:
-                    if (meas[0] > start and meas[0] < end) or (meas[2] > start and meas[2] < end):
-                        self._bars_start_end += [(meas[1], start, end)]
-                        self._bars_start_end += [(meas[3], start, end)]
-                        print("triggered")
-                        break
-                measures = measures[1:]
+        # measures = tb.extractMeasuresHybrid(self._score)
+        # if measures is not None:
+        #     while (len(measures) > 0):
+        #         meas = measures[0]
+        #         for start, end in self._staves_start_end:
+        #             if (meas[0] > start and meas[0] < end) or (meas[2] > start and meas[2] < end):
+        #                 self._bars_start_end += [(meas[1], start, end)]
+        #                 self._bars_start_end += [(meas[3], start, end)]
+        #                 print("triggered")
+        #                 break
+        #         measures = measures[1:]
+
+
+        for start, end in self._staves_start_end:
+            one_staff = list(cut_array(self._score, [(start, end)]))[0]
+            bar_lines = tb.extractMeasuresHybrid(one_staff)
+            bar_list = []
+            bars_in_this_stave = []
+            print(bar_lines)
+            if bar_lines is not None:
+                for i, j, k, l in bar_lines:
+                    bars_in_this_stave += [(j, start, end)]
+                    bar_list.append(i)
+                    bars_in_this_stave += [(l, start, end)]
+                    bar_list.append(j)
+                if clean_up:
+                    width_magic_number = 10
+                    cleaned_up_bars = cleanup_bars(bars_in_this_stave, self._score.shape[0] / width_magic_number )
+                    if cleaned_up_bars is not None:
+                        self._bars_start_end += cleaned_up_bars
+                else:
+                    self._bars_start_end += bars_in_this_stave
+            else:
+                self._bars_start_end += [(0, start, end)]
+                self._bars_start_end += [(self._score.shape[0], start, end)]
+                bar_list.append(0)
+                bar_list.append(self._score.shape[0])
+           
+            self._bars.append(bar_list)
                 
     def _find_bars_by_intersection(self):
         if self._staves is None:
