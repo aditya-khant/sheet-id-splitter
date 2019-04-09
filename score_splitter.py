@@ -726,7 +726,7 @@ def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
 
 def paper_bar_printout():
     for i, (label, image_file) in enumerate(zip(data.database_labels, data.database_paths)):
-        if i > 20:
+        if i > 30:
             break
         else:    
             output_dir = '/home/ckurashige/paper_bars/'   
