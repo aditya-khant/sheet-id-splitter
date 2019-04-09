@@ -319,7 +319,7 @@ class Score:
             self._find_bars_using_tb()
         else:
             raise Exception("Check Toggle")
-        img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
+        img_color = cv.cvtColor(self._verticals ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(self._staves_start_end)))
         print("Bars Length: {}".format(len(self._bars_start_end)))
         if "1" in stuff:
@@ -732,9 +732,9 @@ def paper_bar_printout():
             print('processing image {0} with name {1}'.format(i, name))
             # add 'i' to disambiguate pieces
             s = Score(image, output_dir + name + str(i))
-            s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece")
-            s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves")
-            s._print_with_bars(toggle='peaks', stuff="2", name=s._name+"_bars")
+            s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece_vert")
+            s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves_vert")
+            s._print_with_bars(toggle='peaks', stuff="2", name=s._name+"_bars_vert")
        
 
 if __name__ == '__main__':
