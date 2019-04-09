@@ -328,10 +328,10 @@ class Score:
         if "1" in stuff:
             for (staff_start, staff_end) in self._staves_start_end:
                 cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 2 )
-                cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (0,0,255), 2 )
+                cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 2 )
         if "2" in stuff:
             for i, start, end in self._bars_start_end:
-                cv.line(img_color, (i, start), (i, end), (255, 0,0), 2)
+                cv.line(img_color, (i, start), (i, end), (0, 0,255), 2)
         cv.imwrite('{}.png'.format(name), img_color)
 
     def _find_bars_using_staves(self):
