@@ -304,7 +304,7 @@ class Score:
 
         cv.imwrite('{}.png'.format(self._name), img_color)
 
-    def _print_with_bars(self, toggle="staves"):
+    def _print_with_bars(self, toggle="staves", stuff = "12", name = self._name):
         """Prints bars and staves for new tuples of bars"""
 
         if toggle == "staves":
@@ -320,12 +320,14 @@ class Score:
         img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(self._staves_start_end)))
         print("Bars Length: {}".format(len(self._bars_start_end)))
-        for (staff_start, staff_end) in self._staves_start_end:
-            cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 2 )
-            cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 2 )
-        for i, start, end in self._bars_start_end:
-            cv.line(img_color, (i, start), (i, end), (0,0,255), 2)
-        cv.imwrite('{}.png'.format(self._name), img_color)
+        if "1" in stuff:
+            for (staff_start, staff_end) in self._staves_start_end:
+                cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 2 )
+                cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 2 )
+        if "2" in stuff:
+            for i, start, end in self._bars_start_end:
+                cv.line(img_color, (i, start), (i, end), (255, 0,0), 2)
+        cv.imwrite('{}.png'.format(name), img_color)
 
     def _find_bars_using_staves(self):
         """Finds bars using top 5 and bottom 5 pixels"""
@@ -565,7 +567,7 @@ def test_pretty_print(dataset='mini_dataset', output_dir='/home/ckurashige/voice
         s = Score(image, output_dir + name + str(i))
         s._generate_pretty_image()
 
-def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/', toggle="staves"):
+def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_using_staves/', toggle="staves", stuff="12"):
     '''
     Test the staff splitting by rendering where the score would be split for
     each file.
@@ -576,7 +578,7 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
         print('processing image {0} with name {1}'.format(i, name))
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
-        s._print_with_bars(toggle=toggle)
+        s._print_with_bars(toggle=toggle, stuff=stuff)
     
 
 
@@ -715,7 +717,22 @@ def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
         for j, (start, end) in enumerate(s._staves_start_end):
             one_staff = list(cut_array(s._score, [(start, end)]))[0]
             tb.extractMeasures(one_staff, path=output_dir+"image_{0}_{1}_{2}.png".format(i, name, j), visualize=True)
-        
+
+
+def paper_bar_printout():
+    for i, (label, image_file) in enumerate(zip(data.database_labels, data.database_paths)):
+        if i > 1:
+            break
+        else:    
+            output_dir = '/home/ckurashige/paper_bars/'   
+            image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
+            name = path.split(label)[-1]
+            print('processing image {0} with name {1}'.format(i, name))
+            # add 'i' to disambiguate pieces
+            s = Score(image, output_dir + name + str(i))
+            s._print_with_bars(toggle='tb', stuff="0", name="piece")
+            s._print_with_bars(toggle='tb', stuff="1", name="staves")
+            s._print_with_bars(toggle='tb', stuff="2", name="bars")
        
 
 if __name__ == '__main__':
@@ -726,5 +743,6 @@ if __name__ == '__main__':
     # test_bar_print(dataset="piano_dataset",output_dir='/home/ckurashige/bars_using_avg_min/', toggle='peaks')
     # test_bar_print(output_dir='/home/ckurashige/bars_using_intersections/', toggle='intersect')
     # cnn_bar_size_printout()
-    tsai_bar_printout()
+    # tsai_bar_printout()
     # test_bar_print(toggle='tb', output_dir='/home/ckurashige/tsai_bars_hybrid/')
+    paper_bar_printout()
