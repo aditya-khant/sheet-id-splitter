@@ -304,9 +304,10 @@ class Score:
 
         cv.imwrite('{}.png'.format(self._name), img_color)
 
-    def _print_with_bars(self, toggle="staves", stuff = "12", name = self._name):
+    def _print_with_bars(self, toggle="staves", stuff = "12", name = None):
         """Prints bars and staves for new tuples of bars"""
-
+        if name is None:
+            name = self._name
         if toggle == "staves":
             self._find_bars_using_staves()
         elif toggle == "peaks":
