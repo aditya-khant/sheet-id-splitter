@@ -308,6 +308,7 @@ class Score:
         """Prints bars and staves for new tuples of bars"""
         if name is None:
             name = self._name
+
         if toggle == "staves":
             self._find_bars_using_staves()
         elif toggle == "peaks":
@@ -731,9 +732,9 @@ def paper_bar_printout():
             print('processing image {0} with name {1}'.format(i, name))
             # add 'i' to disambiguate pieces
             s = Score(image, output_dir + name + str(i))
-            s._print_with_bars(toggle='tb', stuff="0", name="piece")
-            s._print_with_bars(toggle='tb', stuff="1", name="staves")
-            s._print_with_bars(toggle='tb', stuff="2", name="bars")
+            s._print_with_bars(toggle='peaks', stuff="0", name="piece")
+            s._print_with_bars(toggle='peaks', stuff="1", name="staves")
+            s._print_with_bars(toggle='peaks', stuff="2", name="bars")
        
 
 if __name__ == '__main__':
