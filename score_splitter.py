@@ -319,13 +319,16 @@ class Score:
             self._find_bars_using_tb()
         else:
             raise Exception("Check Toggle")
-        img_color = cv.cvtColor(cv.bitwise_not(self._verticals) ,cv.COLOR_GRAY2RGB)
+        if (vert):
+            img_color = cv.cvtColor(cv.bitwise_not(self._verticals) ,cv.COLOR_GRAY2RGB)
+        else: 
+            img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(self._staves_start_end)))
         print("Bars Length: {}".format(len(self._bars_start_end)))
         if "1" in stuff:
             for (staff_start, staff_end) in self._staves_start_end:
                 cv.line(img_color, (0, staff_start), (self._score.shape[1], staff_start), (255,0,0), 2 )
-                cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (255,0,0), 2 )
+                cv.line(img_color, (0, staff_end), (self._score.shape[1], staff_end), (0,0,255), 2 )
         if "2" in stuff:
             for i, start, end in self._bars_start_end:
                 cv.line(img_color, (i, start), (i, end), (255, 0,0), 2)
@@ -723,7 +726,7 @@ def tsai_bar_printout(output_dir='/home/ckurashige/tsai_bars/'):
 
 def paper_bar_printout():
     for i, (label, image_file) in enumerate(zip(data.database_labels, data.database_paths)):
-        if i > 1:
+        if i > 10:
             break
         else:    
             output_dir = '/home/ckurashige/paper_bars/'   
@@ -732,9 +735,12 @@ def paper_bar_printout():
             print('processing image {0} with name {1}'.format(i, name))
             # add 'i' to disambiguate pieces
             s = Score(image, output_dir + name + str(i))
-            s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece_vert")
-            s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves_vert")
-            s._print_with_bars(toggle='peaks', stuff="2", name=s._name+"_bars_vert")
+            s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece")
+            s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves")
+            s._print_with_bars(toggle='peaks', stuff="12", name=s._name+"_bars")
+            s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece_vert", vert=True)
+            s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves_vert", vert=True)
+            s._print_with_bars(toggle='peaks', stuff="12", name=s._name+"_bars_vert",  vert=True)
        
 
 if __name__ == '__main__':
