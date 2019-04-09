@@ -732,9 +732,9 @@ def paper_bar_printout():
             print('processing image {0} with name {1}'.format(i, name))
             # add 'i' to disambiguate pieces
             s = Score(image, output_dir + name + str(i))
-            s._print_with_bars(toggle='peaks', stuff="0", name="piece")
-            s._print_with_bars(toggle='peaks', stuff="1", name="staves")
-            s._print_with_bars(toggle='peaks', stuff="2", name="bars")
+            s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece")
+            s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves")
+            s._print_with_bars(toggle='peaks', stuff="2", name=s._name+"_bars")
        
 
 if __name__ == '__main__':
