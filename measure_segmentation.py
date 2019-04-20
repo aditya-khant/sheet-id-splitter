@@ -196,10 +196,12 @@ def create_bar_waveforms(score):
         if cropped_bar.size != 0:
             im_list.append(cropped_bar)
     
+    # Downsample all images
     images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), height=bar_height, width=bar_width)
                 for bar in im_list ]
     if images ==[]:
         return None
+    # Perform the benchmark call
     return call_benchmark(images=images)
 
 
