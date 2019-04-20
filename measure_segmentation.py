@@ -17,6 +17,12 @@ try:
 except:
     warnings.warn("Warning: Install the score-retrieval repository")
 
+
+########################
+# Measure Segmentation #
+########################
+
+
 def binarize_score(score):
     '''
     params: 
@@ -107,13 +113,12 @@ def find_bars(score):
         score: A gray scale version of score
     returns: 
         A list contaning a 3-tuple of (stave-index, bar start and bar end)
-
     '''
     #######
     # Hyperparameters:
-    clean_up = True     # Use the bar cleanup algorithm to remove small bars
     thresholder = True  # Use thresholding for minMax thresholding
     switch_magic_number = 0.01  # Threshold for deciding whether to add all bars or no
+    clean_up = True     # Use the bar cleanup algorithm to remove small bars
     width_magic_number = 10     # Minimum % width threshold for bar cleanup algorithm
     #######
 
@@ -141,11 +146,14 @@ def find_bars(score):
                     filtered = [x[1] for x in maxima_list]
             else:
                 filtered = [x[1] for x in maxima_list]
+
+            # Sort out the bars by width
             filtered = sorted(filtered)
             bars_in_this_stave = []
             for i in filtered:
                 bars_in_this_stave += [(i, start, end)]
-                
+            
+            # Perform the cleanup algorithm
             if clean_up:
                 cleaned_up_bars = cleanup_bars(bars_in_this_stave, score.shape[0] / width_magic_number )
                 if cleaned_up_bars is not None:
@@ -157,6 +165,43 @@ def find_bars(score):
             bars_start_end += [(score.shape[0], start, end)]
              
     return bars_start_end
+
+
+##########################
+# Retrieval and Printing #
+##########################
+
+def create_bar_waveforms(score):
+    '''
+    params:
+        score: a gray scale input image
+    returns:
+        a benchmark call to the pytorch cnn
+    Note: this function utilizes score-retrieval
+    '''
+    #################
+    # Hyperparameters
+    bar_height = 128
+    bar_width = 128
+    #################
+
+    bars_start_end = find_bars(score)
+    im_list = []
+    if len(bars_start_end) <= 1: # if there is one bar, split staff into 2 parts
+        im_list.append(score[bars_start_end[0][1]:bars_start_end[0][2], 0:bars_start_end[0][0]])
+        im_list.append(score[bars_start_end[0][1]:bars_start_end[0][2], bars_start_end[0][0]:score.shape[1]])
+    # Cycle through all bars and create crops
+    for i in range(len(bars_start_end) - 1):
+        cropped_bar = score[bars_start_end[i][1]:bars_start_end[i][2], bars_start_end[i][0]:bars_start_end[i+1][0]]
+        if cropped_bar.size != 0:
+            im_list.append(cropped_bar)
+    
+    images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), height=bar_height, width=bar_width)
+                for bar in im_list ]
+    if images ==[]:
+        return None
+    return call_benchmark(images=images)
+
 
 ##################
 # Helper Methods #
@@ -228,3 +273,13 @@ def cleanup_bars(bars, width):
             return bars
     else:
         return bars
+
+def downsample_image(image, rate=None, width=None, height=None):
+    '''
+    Downsamples 'image' by a ratio 'rate' or by a mentioned size ('width' and 'height')
+    '''
+    if rate is not None:
+        new_shape = (int(image.shape[0] * rate), int(image.shape[1] * rate))
+    if width is not None and height is not None:
+        new_shape = (width, height)
+    return cv.resize(image, new_shape)
