@@ -1,7 +1,5 @@
 # sheet-id-splitter
-## Requisites
-opencv-python: Works without building the c-source
-jupyter, numpy, matplotlib
-
-## Notes:
-Remember to clear output cells in the jupyter notebook before committing.
+###
+Branches:
+master : contains cleaned up code
+working-code: contains code we used for the paper
