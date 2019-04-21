@@ -322,6 +322,30 @@ def write_staff_lines(score, split_type='average', name='staves',
                 end_color, width)
     cv.imwrite(name + '.png', img)
 
+def write_staff_bar_lines(score, split_type='average', name='bar_and_staff',
+                      staff_color=(255,0,0), bar_color=(255,0,0), width=2):
+    '''
+    Overlays staff and bar lines onto the score 'score' and saves as a .png
+    file with name 'name'.
+
+    'staff_color' and 'bar_color' specify the color of the lines drawn for the
+    staves and bars.
+    '''
+    staves_start_end = find_staves(score, split_type)
+    bars_start_end = find_bars(score)
+    img = cv.cvtColor(score, cv.COLOR_GRAY2RGB)
+    for staff_start, staff_end in staves_start_end:
+        # draw staff start line
+        cv.line(img, (0, staff_start), (self._score.shape[1], staff_start),
+                staff_color, width )
+        # draw staff end line
+        cv.line(img, (0, staff_end), (self._score.shape[1], staff_end),
+                staff_color, width)
+    for i, start, end in bars_start_end:
+                cv.line(img, (i, start), (i, end), (0, 0,255), 2)
+    cv.imwrite(name + '.png', img)
+
+
 def write_staves_separately(score, split_type='average', name='staff'):
     '''
     Saves the staffs found from score 'score' each in separate .png
