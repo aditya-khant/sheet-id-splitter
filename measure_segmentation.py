@@ -25,7 +25,7 @@ except:
 
 def binarize_score(score):
     '''
-    params: 
+    params:
         score: a gray scale image of score
     returns:
         a binarized image of the score
@@ -59,7 +59,7 @@ def find_staves(score, split_type = 'average'):
     '''
     params:
           score: a gray scale image of the score
-          
+
           split_type: 'average' or 'strict'. 'average' takes the average
                         between where one staff is predicted to end and the
                         next is predicted to start. It classifies everything up
@@ -70,10 +70,10 @@ def find_staves(score, split_type = 'average'):
                         Another way to think of it is that 'average' guarantees
                         that if you stacked all of the split staves together,
                         you'd get the original image, whereas 'split' does not.
-    returns: 
-        a list of tuples containing stave start and end positions: [(stave_start, stave_end)]
+    returns:
+        a list of tuples containing staff start and end positions: [(stave_start, stave_end)]
     '''
-    
+
     # get vertical lines
     verticals = find_vertical_lines(score)
 
@@ -98,21 +98,21 @@ def find_staves(score, split_type = 'average'):
         staff_split_indices = list(split_indices(horiz_sum_verts, lambda x: x <= mode))
     else:
         raise Exception('Invalid split_type given')
-    
-    # Stave split indices
+
+    # Staff split indices
     staves_start_end = staff_split_indices
     if len(staff_split_indices) == 0:
         staves_start_end = [(0, score.shape[1])]
-    
+
     return staves_start_end
-        
+
 
 def find_bars(score):
     '''
     params:
         score: A gray scale version of score
-    returns: 
-        A list contaning a 3-tuple of (stave-index, bar start and bar end)
+    returns:
+        A list contaning a 3-tuple of (staff-index, bar start and bar end)
     '''
     #######
     # Hyperparameters:
@@ -124,7 +124,7 @@ def find_bars(score):
 
     staves_start_end = find_staves(score)
     bars_start_end = []
-    noisy_verticals = find_vertical_lines(score, filter_height=40) 
+    noisy_verticals = find_vertical_lines(score, filter_height=40)
 
     for start, end in staves_start_end:
         # for each staff, find maxima
@@ -140,7 +140,7 @@ def find_bars(score):
             # Perform min_max threshold
             if thresholder:
                 if abs(maximum - minimum) / noisy_verticals.shape[1] > switch_magic_number:
-                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2  
+                    threshold = (maxima_list[0][0] + maxima_list[-1][0]) / 2
                     filtered = [x[1] for x in maxima_list if x[0] > threshold ]
                 else:
                     filtered = [x[1] for x in maxima_list]
@@ -149,21 +149,21 @@ def find_bars(score):
 
             # Sort out the bars by width
             filtered = sorted(filtered)
-            bars_in_this_stave = []
+            bars_in_this_staff = []
             for i in filtered:
-                bars_in_this_stave += [(i, start, end)]
-            
+                bars_in_this_staff += [(i, start, end)]
+
             # Perform the cleanup algorithm
             if clean_up:
-                cleaned_up_bars = cleanup_bars(bars_in_this_stave, score.shape[0] / width_magic_number )
+                cleaned_up_bars = cleanup_bars(bars_in_this_staff, score.shape[0] / width_magic_number )
                 if cleaned_up_bars is not None:
                     bars_start_end += cleaned_up_bars
             else:
-                bars_start_end += bars_in_this_stave
+                bars_start_end += bars_in_this_staff
         else:
             bars_start_end += [(0, start, end)]
             bars_start_end += [(score.shape[0], start, end)]
-             
+
     return bars_start_end
 
 
@@ -195,7 +195,7 @@ def create_bar_waveforms(score):
         cropped_bar = score[bars_start_end[i][1]:bars_start_end[i][2], bars_start_end[i][0]:bars_start_end[i+1][0]]
         if cropped_bar.size != 0:
             im_list.append(cropped_bar)
-    
+
     # Downsample all images
     images = [downsample_image(cv.cvtColor(bar,cv.COLOR_GRAY2RGB), height=bar_height, width=bar_width)
                 for bar in im_list ]
@@ -242,10 +242,10 @@ def cut_array(array, positions, direction="H"):
 def cleanup_bars(bars, width):
     '''
     Cleans up a set of bars in staves globally using a recursive approach
-    params: 
-        bars: bars in a stave to clean up
+    params:
+        bars: bars in a staff to clean up
         width: width threshold above which a bar is considered a bar
-    returns: 
+    returns:
         cleaned up bars
     '''
     # Atleast have 2 bars
@@ -285,3 +285,50 @@ def downsample_image(image, rate=None, width=None, height=None):
     if width is not None and height is not None:
         new_shape = (width, height)
     return cv.resize(image, new_shape)
+
+################
+# Image Output #
+################
+
+def write_verticals(score, filter_height=30, name='verticals'):
+    '''
+    Saves the vertical lines found from score 'score' in a .png file
+    with name 'name'.
+    '''
+    verticals = find_vertical_lines(score, filter_height)
+    img = cv.cvtColor(cv.bitwise_not(verticals), cv.COLOR_GRAY2RGB)
+    cv.imwrite(name + '.png', img)
+
+def write_staff_lines(score, split_type='average', name='staves',
+                      start_color=(255,0,0), end_color=(255,0,0), width=2):
+    '''
+    Overlays staff lines onto the score 'score' and saves as a .png
+    file with name 'name'.
+
+    'start_color' and 'end_color' specify the color of the lines drawn for the
+    staves (the former is for the top line, the latter is for the bottom).
+    If the split type is 'strict', the start color will be overwritten for
+    most of the lines.
+
+    '''
+    staves_start_end = find_staves(score, split_type)
+    img = cv.cvtColor(score, cv.COLOR_GRAY2RGB)
+    for staff_start, staff_end in staves_start_end:
+        # draw staff start line
+        cv.line(img, (0, staff_start), (self._score.shape[1], staff_start),
+                start_color, width )
+        # draw staff end line
+        cv.line(img, (0, staff_end), (self._score.shape[1], staff_end),
+                end_color, width)
+    cv.imwrite(name + '.png', img)
+
+def write_staves_separately(score, split_type='average', name='staff'):
+    '''
+    Saves the staffs found from score 'score' each in separate .png
+    files with name 'name'-'i', where 'i' is the staff number.
+    '''
+    staves_start_end = find_staves(score, split_type)
+    for i, (staff_start, staff_end) in enumerate(staves_start_end):
+        staff = score[staff_start:staff_end]
+        staff_img = cv.cvtColor(staff, cv.COLOR_GRAY2RGB)
+        cv.imwrite('{name}-{i}.png'.format(name, i), img)
