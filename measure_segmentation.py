@@ -11,9 +11,9 @@ from scipy.signal import find_peaks
 import warnings
 
 # Score-retrieval inputs
+from benchmarks import call_benchmark
 try:
-    import score_retrieval.data as data
-    from benchmarks import call_benchmark
+    import score_retrieval.data
 except:
     warnings.warn("Warning: Install the score-retrieval repository")
 

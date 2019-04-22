@@ -2,8 +2,8 @@ import setuptools
 
 
 setuptools.setup(
-    name="score_splitter",
-    version=0.1,
+    name="measure_segmentation",
+    version=1.0,
     install_requires=[
         "numpy",
         "matplotlib",

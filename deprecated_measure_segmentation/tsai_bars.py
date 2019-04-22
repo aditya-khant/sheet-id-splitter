@@ -202,7 +202,7 @@ def visualizeMeasures(measures, img, path):
         rect = mpatches.Rectangle((col_min, row_min), col_max - col_min, row_max - row_min, linewidth=2 , edgecolor='r', facecolor='none')
         ax.add_patch(rect)
     plt.savefig(path)
-    
+
 def buffer_measures(measures, buffer_pct):
     new_measures=[]
     for bbox in measures:
@@ -331,6 +331,6 @@ def extractMeasuresHybrid(img):
     bar_clusters = clusterBarlines(barlines)
     measures = getMeasureBB(bar_clusters)
     # measures = buffer_measures(measures, buffer_pct)
-    
+
     return measures
-    
+

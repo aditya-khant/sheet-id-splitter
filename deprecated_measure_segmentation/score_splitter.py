@@ -8,10 +8,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import argrelextrema
 from scipy.signal import find_peaks
-from score_splitter_cleanup import start_end_voice_lines
-from score_splitter_cleanup import start_end_voice_lines_by_staff
-from score_splitter_cleanup import find_horizontal_lines
-import tsai_bars as tb
+
+from deprecated_measure_segmentation.score_splitter_cleanup import start_end_voice_lines
+from deprecated_measure_segmentation.score_splitter_cleanup import start_end_voice_lines_by_staff
+from deprecated_measure_segmentation.score_splitter_cleanup import find_horizontal_lines
+import deprecated_measure_segmentation.tsai_bars as tb
 
 # requires score_retrieval
 import score_retrieval.data as data
@@ -321,7 +322,7 @@ class Score:
             raise Exception("Check Toggle")
         if (vert):
             img_color = cv.cvtColor(cv.bitwise_not(self._verticals) ,cv.COLOR_GRAY2RGB)
-        else: 
+        else:
             img_color = cv.cvtColor(self._score ,cv.COLOR_GRAY2RGB)
         print("Staves Length: {}".format(len(self._staves_start_end)))
         print("Bars Length: {}".format(len(self._bars_start_end)))
@@ -442,9 +443,9 @@ class Score:
                 self._bars_start_end += [(self._score.shape[0], start, end)]
                 bar_list.append(0)
                 bar_list.append(self._score.shape[0])
-           
+
             self._bars.append(bar_list)
-                
+
     def _find_bars_by_intersection(self):
         if self._staves is None:
             self._find_staves()
@@ -456,7 +457,7 @@ class Score:
             bar_lines = find_peaks(sum_staff)
             bars_for_staff = [(i,start, end) for i in bar_lines[0]]
             self._bars_start_end += bars_for_staff
-            
+
 
 
 def downsample_image(image, by_rate= True, rate=0.3, by_size=False, width=1024, height=1024):
@@ -584,7 +585,7 @@ def test_bar_print(dataset='mini_dataset', output_dir='/home/ckurashige/bars_usi
         # add 'i' to disambiguate pieces
         s = Score(image, output_dir + name + str(i))
         s._print_with_bars(toggle=toggle, stuff=stuff)
-    
+
 
 
 def cleanup_bars(bars, width):
@@ -728,8 +729,8 @@ def paper_bar_printout():
     for i, (label, image_file) in enumerate(zip(data.database_labels, data.database_paths)):
         if i > 30:
             break
-        else:    
-            output_dir = '/home/ckurashige/paper_bars/'   
+        else:
+            output_dir = '/home/ckurashige/paper_bars/'
             image = cv.imread(image_file, cv.IMREAD_GRAYSCALE)
             name = path.split(label)[-1]
             print('processing image {0} with name {1}'.format(i, name))
@@ -741,7 +742,7 @@ def paper_bar_printout():
             s._print_with_bars(toggle='peaks', stuff="0", name= s._name+"_piece_vert", vert=True)
             s._print_with_bars(toggle='peaks', stuff="1", name=s._name+"_staves_vert", vert=True)
             s._print_with_bars(toggle='peaks', stuff="12", name=s._name+"_bars_vert",  vert=True)
-       
+
 
 if __name__ == '__main__':
 
